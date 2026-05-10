@@ -1,10 +1,10 @@
 import qiskit as qk
 from .basis_gates import to_basis_gates
+from optimizer.optimizer import optimize_brainfuq
 
 def qiskit_to_brainfuq(qc: qk.QuantumCircuit) -> str:
     """
     Translate a qiskit circuit to Brainfuq.
-    The output produced here is not optimized.
 
     :param qc: The circuit to translate
     :return: The Brainfuq translation
@@ -16,7 +16,7 @@ def qiskit_to_brainfuq(qc: qk.QuantumCircuit) -> str:
             res += _parse_control_gate(name=instr.name, control_qubit=instr.qubits[0]._index, target_qubit=instr.qubits[1]._index)
         else:
             res += _parse_regular_gate(name=instr.name, qubit=instr.qubits[0]._index)
-    return res
+    return optimize_brainfuq(res)
 
 def _parse_regular_gate(name: str, qubit: int) -> str:
     ops = {
