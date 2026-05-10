@@ -9,7 +9,7 @@ def qiskit_to_brainfuq(qc: qk.QuantumCircuit) -> str:
     :param qc: The circuit to translate
     :return: The Brainfuq translation
     """
-    to_basis_gates(qc)
+    qc = to_basis_gates(qc)
     res = ""
     for instr in qc.data:
         if instr.is_controlled_gate():
