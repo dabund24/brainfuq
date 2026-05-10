@@ -1,5 +1,5 @@
 import qiskit as qk
-from basis_gates import to_basis_gates
+from .basis_gates import to_basis_gates
 
 def qiskit_to_brainfuq(qc: qk.QuantumCircuit) -> str:
     """
