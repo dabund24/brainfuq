@@ -7,6 +7,7 @@ def optimize_brainfuq(bfqc: str) -> str:
     :param bfqc: The program to optimize
     :return: The optimized Brainfuq program
     """
+
     bfqc = _one_time_optimizations(bfqc)
     while True:
         optimized_bfqc = _fixpoint_optimizations(bfqc)

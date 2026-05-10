@@ -9,7 +9,6 @@ from qiskit.circuit.library import (
 )
 from qiskit.circuit import Measure
 
-
 def to_basis_gates(qc: qk.QuantumCircuit) -> qk.QuantumCircuit:
     """
     Transpile a qiskit circuit to only include the basis gates allowed in brainfuq.
@@ -17,6 +16,7 @@ def to_basis_gates(qc: qk.QuantumCircuit) -> qk.QuantumCircuit:
     :param qc: The circuit to transpile
     :return: The transpiled qiskit circuit
     """
+
     target = Target(num_qubits=qc.num_qubits)
 
     # important to make transpiler happy
@@ -30,7 +30,6 @@ def to_basis_gates(qc: qk.QuantumCircuit) -> qk.QuantumCircuit:
         for j in range(qc.num_qubits)
         if i != j
     }
-
 
     target.add_instruction(XGate(), single_qubit_map)
     target.add_instruction(HGate(), single_qubit_map)
