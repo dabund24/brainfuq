@@ -14,9 +14,16 @@ def qiskit_to_brainfuq(qc: qk.QuantumCircuit) -> str:
     res = ""
     for instr in qc.data:
         if instr.is_controlled_gate():
-            res += _parse_control_gate(name=instr.name, control_qubit=instr.qubits[0]._index, target_qubit=instr.qubits[1]._index)
+            res += _parse_control_gate(
+                name=instr.name,
+                control_qubit=qc.find_bit(instr.qubits[0]).index,
+                target_qubit=qc.find_bit(instr.qubits[1]).index,
+            )
         else:
-            res += _parse_regular_gate(name=instr.name, qubit=instr.qubits[0]._index)
+            res += _parse_regular_gate(
+                name=instr.name,
+                qubit=qc.find_bit(instr.qubits[0]).index,
+            )
     return optimize_brainfuq(res)
 
 def _parse_regular_gate(name: str, qubit: int) -> str:
@@ -24,7 +31,7 @@ def _parse_regular_gate(name: str, qubit: int) -> str:
         "x": "*",
         "h": "~",
         "t": ";",
-        "measure": ":"
+        "measure": ":",
     }
     return _op_at_qubit(op=ops[name], qubit=qubit)
     
