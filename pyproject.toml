@@ -1,0 +1,24 @@
+[project]
+name = "brainfuq"
+version = "0.1.0"
+dependencies = [
+  "qiskit",
+  "numpy",
+  "pytest",
+]
+requires-python = ">= 3.14"
+authors = [
+  {name = "Paul Wiese"},
+  {name = "Daniel Bund", email = "dev@dabund24.de"},
+]
+readme = "readme.md"
+
+[build-system]
+requires = ["setuptools >= 77.0.3"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
