@@ -1,0 +1,54 @@
+import qiskit as qk
+from .basis_gates import to_basis_gates
+from optimizer.optimizer import optimize_brainfuq
+
+def qiskit_to_brainfuq(qc: qk.QuantumCircuit) -> str:
+    """
+    Translate a qiskit circuit to Brainfuq.
+
+    :param qc: The circuit to translate
+    :return: The Brainfuq translation
+    """
+
+    qc = to_basis_gates(qc)
+    res = ""
+    for instr in qc.data:
+        if instr.is_controlled_gate():
+            res += _parse_control_gate(
+                name=instr.name,
+                control_qubit=qc.find_bit(instr.qubits[0]).index,
+                target_qubit=qc.find_bit(instr.qubits[1]).index,
+            )
+        else:
+            res += _parse_regular_gate(
+                name=instr.name,
+                qubit=qc.find_bit(instr.qubits[0]).index,
+            )
+    return optimize_brainfuq(res)
+
+def _parse_regular_gate(name: str, qubit: int) -> str:
+    ops = {
+        "x": "*",
+        "h": "~",
+        "t": ";",
+        "measure": ":",
+    }
+    return _op_at_qubit(op=ops[name], qubit=qubit)
+    
+def _parse_control_gate(name: str, control_qubit: int, target_qubit: int) -> str:
+    res = _op_at_qubit(op="#", qubit=control_qubit)
+
+    ops = {
+        "cx": "*",
+        "ch": "~",
+        "ct": ";",
+    }
+    res += _op_at_qubit(op=ops[name], qubit=target_qubit)
+
+    return res
+
+def _op_at_qubit(op: str, qubit: int) -> str:
+    res = "}" * qubit
+    res += op
+    res += "{" * qubit
+    return res
