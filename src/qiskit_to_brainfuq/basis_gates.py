@@ -9,6 +9,7 @@ from qiskit.circuit.library import (
     TGate,
     CPhaseGate,
     PhaseGate,
+    Barrier,
 )
 from qiskit.circuit import Measure
 
@@ -59,6 +60,9 @@ def _replace_param_instructions(qc: qk.QuantumCircuit):
         gate = instr.operation
         qubits = instr.qubits
         
+        if isinstance(gate, Barrier):
+            continue
+
         if isinstance(gate, PhaseGate):
             if np.isclose(float(gate.params[0]), np.pi):
                 res.t(qubits[0])
