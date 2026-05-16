@@ -20,3 +20,11 @@ def test_qft():
     qc = qc.decompose()
     bfqc = qiskit_to_brainfuq(qc)
     assert bfqc == "}}~#{;}#{;~}#{{;}#{;}#{;~#}}*#{{*#}}*"
+
+def test_bell_state():
+    qc = qk.QuantumCircuit(2)
+    qc.h(0)
+    qc.cx(0, 1)
+    qc.measure_all()
+    bfqc = qiskit_to_brainfuq(qc)
+    assert bfqc == "~#}*{:}:"
