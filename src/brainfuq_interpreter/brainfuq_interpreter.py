@@ -70,13 +70,13 @@ def interpret_brainfuq(input: str) -> tuple[dict, dict, dict]:
     return classical_tape, quantum_tape, qubit_map
         
 
-def apply_single_qubit_gate(quantum_tape: dict, qubit_map: dict, quantum_ptr: int, gate_matrix: np.ndarray) -> dict:
+def apply_single_qubit_gate(quantum_tape: dict[int, complex], qubit_map: dict[int, int], quantum_ptr: int, gate_matrix: np.ndarray) -> dict[int, complex]:
     """
     Applies any arbitrary 2x2 quantum gate matrix to the target qubit.
     Updates the sparse quantum_tape in-place.
     """
-    target_bit = qubit_map[quantum_ptr]
-    bit_mask = 1 << target_bit
+    target_qubit = qubit_map[quantum_ptr]
+    bit_mask = 1 << target_qubit
     
     m00, m01 = gate_matrix[0, 0], gate_matrix[0, 1]
     m10, m11 = gate_matrix[1, 0], gate_matrix[1, 1]
