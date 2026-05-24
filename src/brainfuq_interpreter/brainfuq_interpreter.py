@@ -25,6 +25,14 @@ def interpret_brainfuq(input: str) -> tuple[dict, dict, dict]:
     quantum_ptr = 0
     next_idx = 1
 
+    # quantum tape pointer to the qubit controlling the next gate - set by '#'
+    control_qubit_ptr = None
+
+    # '?': apply next gate only if last measurement yielded 1
+    measurement_control_active = False
+
+    last_measured = 0
+
     classical_ptr = 0
 
     # index within brainfuq input string
@@ -35,48 +43,107 @@ def interpret_brainfuq(input: str) -> tuple[dict, dict, dict]:
         match input[c]:
             # quantum instructions
             case '}': 
+                
                 quantum_ptr += 1
+                
                 if quantum_ptr not in qubit_map:
                     qubit_map[quantum_ptr] = next_idx
                     next_idx += 1
+
             case '{':
+                
                 quantum_ptr -= 1
+                
                 if quantum_ptr not in qubit_map:
                         qubit_map[quantum_ptr] = next_idx
                         next_idx += 1
+
             case '*':
-                apply_single_qubit_gate(quantum_tape, qubit_map, quantum_ptr, X_GATE)
+
+                if not (measurement_control_active and last_measured == 0):
+                    apply_gate(quantum_tape, qubit_map, control_qubit_ptr, quantum_ptr, X_GATE)
+                
+                control_qubit_ptr = None
+                measurement_control_active = False
+
             case '~':
-                apply_single_qubit_gate(quantum_tape, qubit_map, quantum_ptr, H_GATE)
-            case '#': pass
-            case '?': pass
+                
+                if not (measurement_control_active and last_measured == 0):
+                    apply_gate(quantum_tape, qubit_map, control_qubit_ptr, quantum_ptr, H_GATE)
+                
+                control_qubit_ptr = None
+                measurement_control_active = False
+            case '#':
+                
+                control_qubit_ptr = quantum_ptr
+
+            case '?':
+                
+                measurement_control_active = True
+
             case ';':
-                apply_single_qubit_gate(quantum_tape, qubit_map, quantum_ptr, T_GATE)
-            case ':': pass
+
+                if not (measurement_control_active and last_measured == 0):
+                    apply_gate(quantum_tape, qubit_map, control_qubit_ptr, quantum_ptr, T_GATE)
+                
+                control_qubit_ptr = None
+                measurement_control_active = False
+
+            case ':':
+
+                last_measured = measure_qubit(quantum_tape, qubit_map, quantum_ptr, True)
+            
             # classical instructions
             case '>': 
+                
                 classical_ptr += 1
+
             case '<': 
+                
                 classical_ptr -= 1
-            case '+': pass
-            case '-': pass
-            case '.': pass
-            case ',': pass
-            case '[': pass
-            case ']': pass
+
+            case '+':
+                
+                pass
+
+            case '-':
+                
+                pass
+
+            case '.':
+                
+                pass
+
+            case ',':
+                
+                pass
+
+            case '[':
+                
+                pass
+
+            case ']':
+                
+                pass
         
         c += 1
 
     return classical_tape, quantum_tape, qubit_map
         
 
-def apply_single_qubit_gate(quantum_tape: dict[int, complex], qubit_map: dict[int, int], quantum_ptr: int, gate_matrix: np.ndarray) -> dict[int, complex]:
+def apply_gate(quantum_tape: dict[int, complex], qubit_map: dict[int, int], control_ptr: int, target_ptr: int, gate_matrix: np.ndarray):
     """
     Applies any arbitrary 2x2 quantum gate matrix to the target qubit.
-    Updates the sparse quantum_tape in-place.
+    If the control_ptr is not None the corresponding qubit controls the operation.
+    The sparse quantum_tape gets updated in-place.
     """
-    target_qubit = qubit_map[quantum_ptr]
-    bit_mask = 1 << target_qubit
+
+    if control_ptr is not None:
+        control_qubit = qubit_map[control_ptr]
+        control_mask = 1 << control_qubit
+
+    target_qubit = qubit_map[target_ptr]
+    target_mask = 1 << target_qubit
     
     m00, m01 = gate_matrix[0, 0], gate_matrix[0, 1]
     m10, m11 = gate_matrix[1, 0], gate_matrix[1, 1]
@@ -88,16 +155,21 @@ def apply_single_qubit_gate(quantum_tape: dict[int, complex], qubit_map: dict[in
     for state_int in existing_states:
         if state_int in processed:
             continue
-            
+
         # state_0 = x0y
         # state_1 = x1y
-        if (state_int & bit_mask) == 0:
+        if (state_int & target_mask) == 0:
             state_0 = state_int
-            state_1 = state_int ^ bit_mask
+            state_1 = state_int ^ target_mask
         else:
             state_1 = state_int
-            state_0 = state_int ^ bit_mask
+            state_0 = state_int ^ target_mask
         
+        if control_ptr is not None and (state_int & control_mask) == 0:
+            processed.add(state_0)
+            processed.add(state_1)
+            continue
+
         amp_0 = quantum_tape.get(state_0, 0.0)
         amp_1 = quantum_tape.get(state_1, 0.0)
         
@@ -116,8 +188,50 @@ def apply_single_qubit_gate(quantum_tape: dict[int, complex], qubit_map: dict[in
             
         processed.add(state_0)
         processed.add(state_1)
+
+
+def measure_qubit(quantum_tape: dict[int, complex], qubit_map: dict[int, int], quantum_ptr: int, verbose: bool = False) -> int:
+    """
+    Measures the target qubit.
+    The quantum_tape is updated in-place.
+    The measured value is returned.
+    """
+    target_qubit = qubit_map[quantum_ptr]
+    bit_mask = 1 << target_qubit
+    
+    prob_0 = 0.0
+    for state_int, amplitude in quantum_tape.items():
         
-    return quantum_tape
+        state_prob = abs(amplitude) ** 2
+        
+        if (state_int & bit_mask) == 0:
+            prob_0 += state_prob
+            
+    prob_1 = 1.0 - prob_0
+
+    measured_value = np.random.choice([0, 1], p=[prob_0, prob_1])
+    
+    chosen_prob = prob_0 if measured_value == 0 else prob_1
+    
+    normalization_factor = 1.0 / np.sqrt(chosen_prob)
+
+    existing_states = list(quantum_tape.keys())
+
+    for state_int in existing_states:
+        
+        bit_value = 1 if (state_int & bit_mask) != 0 else 0
+        
+        if bit_value != measured_value:
+            # delete states where the target qubit does not match the measured value
+            del quantum_tape[state_int]
+        else:
+            # normalization
+            quantum_tape[state_int] *= normalization_factor
+
+    if verbose:
+        print(measured_value)
+
+    return measured_value, quantum_tape
 
 
 def get_quantum_state(quantum_tape, qubit_map):
