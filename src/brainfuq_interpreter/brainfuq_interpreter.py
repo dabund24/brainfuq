@@ -1,9 +1,9 @@
 import numpy as np
 
 # return
-def interpret_brainfuq(input: str) -> tuple[dict, dict, dict]:
+def interpret_brainfuq(program: str) -> tuple[dict, dict, dict]:
     
-    classical_tape: dict[int, int] = {}       # maps position (int) to cell value (int)
+    classical_tape: dict[int, np.uint8] = {0: np.uint8(0)}       # maps position (int) to cell value (int)
     quantum_tape: dict[int, complex] = {0: 1.0} # maps state (int) to amplitude (complex)
     qubit_map: dict[int, int] = {0: 0}         # maps position (int) to bit index (int)
 
@@ -12,7 +12,7 @@ def interpret_brainfuq(input: str) -> tuple[dict, dict, dict]:
 
     valid_chars = set("}{*~#?;:><+-.,[]")
     
-    for c, char in enumerate(input):
+    for c, char in enumerate(program):
         if char not in valid_chars:
             raise ValueError(f"Syntax Error: Invalid Brainfuq command '{char}' at position {c}")
 
@@ -35,12 +35,12 @@ def interpret_brainfuq(input: str) -> tuple[dict, dict, dict]:
 
     classical_ptr = 0
 
-    # index within brainfuq input string
+    # index within brainfuq program string
     c = 0
 
-    while(c < len(input)):
+    while(c < len(program)):
 
-        match input[c]:
+        match program[c]:
             # quantum instructions
             case '}': 
                 
@@ -95,37 +95,35 @@ def interpret_brainfuq(input: str) -> tuple[dict, dict, dict]:
             
             # classical instructions
             case '>': 
-                
                 classical_ptr += 1
+                if classical_ptr not in classical_tape:
+                    classical_tape[classical_ptr] = np.uint8(0)
 
             case '<': 
-                
                 classical_ptr -= 1
+                if classical_ptr not in classical_tape:
+                    classical_tape[classical_ptr] = np.uint8(0)
 
             case '+':
-                
-                pass
+                classical_tape[classical_ptr] += 1
 
             case '-':
-                
-                pass
+                classical_tape[classical_ptr] -= 1
 
             case '.':
-                
-                pass
+                print(classical_tape[classical_ptr])
 
             case ',':
-                
-                pass
+                classical_tape[classical_ptr] = np.uint8(input("$ "))
 
             case '[':
-                
-                pass
+                if classical_tape[classical_ptr] == 0:
+                    c = classical_cond_jmp(program, c, True)
 
             case ']':
-                
-                pass
-        
+                if classical_tape[classical_ptr] != 0:
+                    c = classical_cond_jmp(program, c, False)
+
         c += 1
 
     return classical_tape, quantum_tape, qubit_map
@@ -264,3 +262,28 @@ def get_spatial_bitstring(state_int, qubit_map):
         bit_chars.append(str(bit_value))
         
     return "".join(bit_chars)
+
+
+def classical_cond_jmp(
+    program: str,
+    c: int,
+    is_to_right: bool
+) -> int:
+    """
+    jump to matching `[` or `]` instruction on classical tape
+
+    :param classical_tape: The classical tape. Is modified in-place!
+    :param c: The program counter
+    :param is_to_right: Walk to the right? E.g. `True` if `[` is encountered
+    :return: The new classical pointer
+    """
+    sign = 1 if is_to_right else -1
+    depth = 1
+    while depth > 0:
+        c += sign
+        if program[c] == '[':
+            depth += sign
+        elif program[c] == ']':
+            depth -= sign
+
+    return c
