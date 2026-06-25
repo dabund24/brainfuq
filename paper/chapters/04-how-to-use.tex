@@ -1,22 +1,58 @@
-\section{How to use our Code}
+\section{How to Use Our Code}
 
-Include important code snippets
+% Include important code snippets such that we know how to use your code.
 
-\begin{lstlisting}[language=Python, caption=Example Python code]
-def example_function(x, y):
-    """
-    Brief description of what this function does.
-    
-    Args:
-        x: First parameter
-        y: Second parameter
-    
-    Returns:
-        Result of the computation
-    """
-    result = x + y
-    return result
+\subsection{Environment Setup}
+To ensure dependencies do not conflict with your system-wide Python installation, we recommend executing this project within an isolated virtual environment. 
+From the project's root directory, initialize and activate the environment, then install the package along with its required dependencies in editable mode by running:
+
+\begin{lstlisting}[
+    language=bash, 
+    numbers=none, 
+    backgroundcolor={},
+    caption={Terminal installation steps}, 
+    label={lst:install_bash}
+]
+# 1. Create a virtual environment named .venv
+python -m venv .venv
+
+# 2. Activate the environment
+# On Linux / macOS:
+source .venv/bin/activate
+# On Windows (PowerShell):
+.venv\Scripts\Activate.ps1
+
+# 3. Install the project dynamically from pyproject.toml
+pip install -e .
 \end{lstlisting}
 
-such that we know how to use your code.
+By utilizing the \texttt{-e} flag, the source code inside the \texttt{src/} directory is linked directly to your active environment. This allows any absolute imports to resolve automatically from anywhere on your system.
 
+\subsection{Using the Interpreter to create a GHZ State}
+The script located at \texttt{examples/ghz.py} (see Listing~\ref{lst:ghz_example}) initializes the environment, structures the custom quantum program string, and executes it.
+
+\begin{lstlisting}[language=Python, caption=examples/ghz.py, label={lst:ghz_example}]
+from brainfuq_interpreter.brainfuq_interpreter import BrainfuqInterpreter
+from brainfuq_interpreter.brainfuq_simulator import BrainfuqSimulator
+
+N = 10
+
+simulator = BrainfuqSimulator()
+interpreter = BrainfuqInterpreter(simulator)
+
+# put q0 in equal superposition
+program = "~"
+
+# loop counter
+program += "+" * N
+
+# loop body: add a cnot and decrement loop counter
+program += "[#}*-]"
+
+interpreter.interpret_program(program)
+print(simulator)
+
+
+# reset interpreter before interpreting the next program
+interpreter.reset()
+\end{lstlisting}
