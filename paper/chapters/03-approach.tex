@@ -1,3 +1,30 @@
 \section{Approach}
 
-This should be the most detailed section in general. How did you approach to solve your problem? What worked and what did not work. Here, you should also add your evaluations.
+% This should be the most detailed section in general. How did you approach to solve your problem? What worked and what did not work. Here, you should also add your evaluations.
+
+The main challenge of implementing a brainfuq interpreter lies in the representation of the quantum tape.
+In classical brainfuck the tape can be implemented as a plain hash map from indices to tape values.
+The indices are signed integers, i.e. they can take on positive and negative values as the pointer is moved left and right.
+The tape values are typically bytes representing an 8 bit unsigned integer.
+
+In our implementation we attempt to apply this approach to the quantum tape, which requires some creativity to accomodate the properties of quantum states.
+While a naive map from indices to single qubits seems straightforward, it is not sufficient as it can only be used to store product states.
+As the gates of the brainfuq specification make up a universal basis of quantum gates, arbitrary and in particular also entangled quantum states can be computed.
+To represent arbitrary quantum states we transition to a map $\qtape$ from basis states to complex amplitudes.
+Although such a map is capable of storing arbitrary states similar to a plain statevector, the representation of the basis states remains a challenge.
+Given that the quantum tape is infinite, i.e. the indices run from $-\infty$ to $\infty$, there are no boundaries that define a reference frame for specifying basis states.
+Instead we introduce a $\qmap$ that maps from the indices on the quantum tape to progressively positive qubit indices.
+The idea is that when we move the quantum pointer to a new location it is always added on the same side in our classical represntation of the quatum state.
+The initial state of our system is $\qtape = \{0: 1.0\}$ and $\qmap = \{0: 0\}$.
+When we move the pointer to the left the  $\qmap$ is extended to $\{0: 0, -1: 1\}$, or analogously to $\{0: 0, 1: 1\}$ if we move it right to index 1 on the tape.
+Note, that the $\qtape$ remains $\{0: 1.0\}$ for now.
+This is because we add new qubits as the most significant bit position, i.e. as $q_n$ in $\ket{q_n ... q_0}$.
+For optimization purposes we generally omit the leading zeros in the bitstrings representing the basis states, such that the $\qtape$ does not change when we move the pointer to an unseen index.
+As a further optimization we only store those amplitudes in the $\qtape$ map that are not zero.
+Apart from incorporating the qubit mapping, applying gates and measuring qubits works equivalently as in standard statevector simulators.
+
+% translation to openqasm/qiskit
+
+% evaluation: ghz, grover, qft, 
+
+% correctness confirmed by tests ?
