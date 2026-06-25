@@ -78,3 +78,6 @@ class BrainfuqClassicalInterpreter:
 
         return c
 
+
+    def return_state(self) -> dict[int, np.uint8]:
+        return self.__classical_tape

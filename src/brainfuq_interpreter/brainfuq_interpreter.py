@@ -1,3 +1,4 @@
+import numpy as np
 from .brainfuq_quantum_interpreter import BrainfuqQuantumInterpreter
 from .brainfuq_classical_interpreter import BrainfuqClassicalInterpreter
 
@@ -10,7 +11,7 @@ class BrainfuqInterpreter[T]:
         self.__quantum_interpreter.reset()
         self.__classical_interpreter.reset()
                 
-    def interpret_program(self, program: str) -> T:
+    def interpret_program(self, program: str) -> tuple[T, dict[int, np.uint8]]:
         for i, op in enumerate(program):
             if op not in BrainfuqQuantumInterpreter.SUPPORTED_OPS and op not in BrainfuqClassicalInterpreter.SUPPORTED_OPS:
                 raise ValueError(f"Syntax Error: Invalid Brainfuq command '{op}' at position {i}")
@@ -25,4 +26,4 @@ class BrainfuqInterpreter[T]:
 
             pc += 1
 
-        return self.__quantum_interpreter.return_state()
+        return self.__quantum_interpreter.return_state(), self.__classical_interpreter.return_state()
