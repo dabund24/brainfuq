@@ -2,38 +2,39 @@ from abc import ABC, abstractmethod
 from typing import final
 
 class BrainfuqQuantumInterpreter[T](ABC):
-    SUPPORTED_OPS = set('}', '{', '*', '~', ';', '#', '?', ':')
+    SUPPORTED_OPS = set('}{*~;#?:')
 
     def __init__(self, verbose: bool):
-        self._quantum_ptr: int = 0
-        """
-        current position on the quantum tape
-        """
-
-        self._qubit_map: dict[int, int] = {0: 0}
-        """
-        maps tape position to qubit index
-        """
-
-        self._control_qubit_ptr = int | None
-        """
-        quantum tape pointer to the qubit controlling the next gate - set by '#'
-        """
-
-        self._measurement_control_active = False
-        """
-        '?': apply next gate only if last measurement yielded 1
-        """
-    
-        self._next_idx = 1
-        """
-        Index of the next qubit to add
-        """
-
         self._verbose = verbose
+        self.reset()
+
+    @final
+    def reset(self) -> None:
         """
-        Verbose output
+        Public reset API. Resets both base interpreter states 
+        and implementation-specific simulator states.
         """
+        self._reset_base()
+        self._reset_simulator()
+
+    @final
+    def _reset_base(self) -> None:
+        """
+        Resets the core base-class state variables.
+        """
+        self._quantum_ptr: int = 0
+        self._qubit_map: dict[int, int] = {0: 0}
+        self._control_qubit_ptr: int | None = None
+        self._measurement_control_active = False
+        self._next_idx = 1
+
+    @abstractmethod
+    def _reset_simulator(self) -> None:
+        """
+        Subclasses must implement this to reset their own state variables 
+        (e.g., state vectors, density matrices, measurement histories).
+        """
+        pass
 
 
     @final
@@ -55,7 +56,7 @@ class BrainfuqQuantumInterpreter[T](ABC):
         """
         `*` operation. Apply X Gate
         """
-        self.apply_x()
+        self._apply_x()
         self._control_qubit_ptr = None
         self._measurement_control_active = False
 
@@ -69,7 +70,7 @@ class BrainfuqQuantumInterpreter[T](ABC):
         """
         `~` operation. Apply H Gate
         """
-        self.apply_h()
+        self._apply_h()
         self._control_qubit_ptr = None
         self._measurement_control_active = False
 
@@ -83,7 +84,7 @@ class BrainfuqQuantumInterpreter[T](ABC):
         """
         `;` operation. Apply T Gate
         """
-        self.apply_t()
+        self._apply_t()
         self._control_qubit_ptr = None
         self._measurement_control_active = False
 
@@ -122,20 +123,33 @@ class BrainfuqQuantumInterpreter[T](ABC):
         :param op: the operation to apply. Must be a single character from SUPPORTED_OPS
         """
         match op:
-            case '}': self.__move_right()
-            case '{': self.__move_left()
-            case '*': self.__x()
-            case '~': self.__h()
-            case ';': self.__t()
-            case '#': self.__set_control_qubit()
-            case '?': self.__set_control_measurement()
-            case ':': self._measure()
-    
-    @abstractmethod
-    def return_state(self) -> T:
+            case '}':
+                self.__move_right()
+            case '{':
+                self.__move_left()
+            case '*':
+                self.__x()
+            case '~':
+                self.__h()
+            case ';':
+                self.__t()
+            case '#':
+                self.__set_control_qubit()
+            case '?':
+                self.__set_control_measurement()
+            case ':':
+                self._measure()
+
+
+    @final
+    def _return_state(self) -> T:
         """
         return what has been computed so far
         """
+        return self.return_state()
+
+    @abstractmethod
+    def return_state(self) -> T:
         pass
 
     @abstractmethod

@@ -1,11 +1,13 @@
 import numpy as np
 
 class BrainfuqClassicalInterpreter:
-    SUPPORTED_OPS = set('>', '<', '+', '-', '.', ',', '[', ']')
+    SUPPORTED_OPS = set('><+-.,[]')
 
     def __init__(self):
+        self.reset()
+
+    def reset(self):
         self.__classical_tape: dict[int, np.uint8] = {0: np.uint8(0)}
-        
         self.__classical_ptr = 0
 
     def apply_operation(self, program: str, pc: int) -> int:
@@ -43,11 +45,13 @@ class BrainfuqClassicalInterpreter:
 
             case '[':
                 if self.__classical_tape[self.__classical_ptr] == 0:
-                    return self.__classical_cond_jmp(program, pc, True)
+                    return self.classical_cond_jmp(program, pc, True)
 
             case ']':
                 if self.__classical_tape[self.__classical_ptr] != 0:
-                    return self.__classical_cond_jmp(program, pc, False)
+                    return self.classical_cond_jmp(program, pc, False)
+                
+        return pc
 
     def classical_cond_jmp(
         self,

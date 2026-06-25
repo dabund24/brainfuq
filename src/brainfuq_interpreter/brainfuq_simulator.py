@@ -1,4 +1,4 @@
-from brainfuq_quantum_interpreter import BrainfuqQuantumInterpreter
+from .brainfuq_quantum_interpreter import BrainfuqQuantumInterpreter
 from typing import override, Literal
 import numpy as np
 
@@ -11,9 +11,11 @@ class BrainfuqSimulator(BrainfuqQuantumInterpreter[tuple[dict[int, complex], dic
     H_GATE = np.array([[1, 1], [1, -1]]) / np.sqrt(2)
     T_GATE = np.array([[1, 0], [0, np.exp(1j * np.pi / 4)]])
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, verbose=False):
+        super().__init__(verbose)
 
+    @override
+    def _reset_simulator(self):
         self.__quantum_tape: dict[int, complex] = {0: 1.0}
         """
         maps state to amplitude.
@@ -47,11 +49,11 @@ class BrainfuqSimulator(BrainfuqQuantumInterpreter[tuple[dict[int, complex], dic
         if self._measurement_control_active and self.__last_measured == 0:
             return
 
-        if self._control_ptr is not None:
-            control_qubit = self._qubit_map[self.control_ptr]
+        if self._control_qubit_ptr is not None:
+            control_qubit = self._qubit_map[self._control_qubit_ptr]
             control_mask = 1 << control_qubit
 
-        target_qubit = self._qubit_map[self.target_ptr]
+        target_qubit = self._qubit_map[self._quantum_ptr]
         target_mask = 1 << target_qubit
 
         m00, m01 = gate_matrix[0, 0], gate_matrix[0, 1]
@@ -74,7 +76,7 @@ class BrainfuqSimulator(BrainfuqQuantumInterpreter[tuple[dict[int, complex], dic
                 state_1 = state_int
                 state_0 = state_int ^ target_mask
 
-            if self.control_ptr is not None and (state_int & control_mask) == 0:
+            if self._control_qubit_ptr is not None and (state_int & control_mask) == 0:
                 processed.add(state_0)
                 processed.add(state_1)
                 continue
@@ -104,7 +106,7 @@ class BrainfuqSimulator(BrainfuqQuantumInterpreter[tuple[dict[int, complex], dic
         bit_mask = 1 << target_qubit
 
         prob_0 = 0.0
-        for state_int, amplitude in self._quantum_tape.items():
+        for state_int, amplitude in self.__quantum_tape.items():
 
             state_prob = abs(amplitude) ** 2
 
@@ -119,7 +121,7 @@ class BrainfuqSimulator(BrainfuqQuantumInterpreter[tuple[dict[int, complex], dic
 
         normalization_factor = 1.0 / np.sqrt(chosen_prob)
 
-        existing_states = list(self._quantum_tape.keys())
+        existing_states = list(self.__quantum_tape.keys())
 
         for state_int in existing_states:
 
@@ -127,22 +129,22 @@ class BrainfuqSimulator(BrainfuqQuantumInterpreter[tuple[dict[int, complex], dic
 
             if bit_value != self.__last_measured:
                 # delete states where the target qubit does not match the measured value
-                del self._quantum_tape[state_int]
+                del self.__quantum_tape[state_int]
             else:
                 # normalization
-                self._quantum_tape[state_int] *= normalization_factor
+                self.__quantum_tape[state_int] *= normalization_factor
 
         if self._verbose:
             print(self.__last_measured)
 
     @override
-    def state(self):
+    def return_state(self):
         return self.__quantum_tape, self._qubit_map
 
     def __str__(self):
         output_terms = []
 
-        for state_int, amplitude in self._quantum_tape.items():
+        for state_int, amplitude in self.__quantum_tape.items():
 
             spatial_bitstring = self.__get_spatial_bitstring(state_int, self._qubit_map)
 
@@ -157,7 +159,7 @@ class BrainfuqSimulator(BrainfuqQuantumInterpreter[tuple[dict[int, complex], dic
         return " + ".join(output_terms)
     
 
-    def __get_spatial_bitstring(state_int, qubit_map):
+    def __get_spatial_bitstring(self, state_int, qubit_map):
         """
         Sort the tape positions from lowest to highest (e.g., -1, 0, 1)
         """
@@ -170,5 +172,4 @@ class BrainfuqSimulator(BrainfuqQuantumInterpreter[tuple[dict[int, complex], dic
             bit_chars.append(str(bit_value))
 
         return "".join(bit_chars)
-
 
