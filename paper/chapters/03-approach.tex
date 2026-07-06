@@ -2,6 +2,9 @@
 
 % This should be the most detailed section in general. How did you approach to solve your problem? What worked and what did not work. Here, you should also add your evaluations.
 
+\subsection{Quantum Tape}
+\label{sec:approach-quantum-tape}
+
 The main challenge of implementing a brainfuq interpreter lies in the representation of the quantum tape.
 In classical brainfuck the tape can be implemented as a plain hash map from indices to tape values.
 The indices are signed integers, i.e. they can take on positive and negative values as the pointer is moved left and right.
@@ -23,8 +26,15 @@ For optimization purposes we generally omit the leading zeros in the bitstrings 
 As a further optimization we only store those amplitudes in the $\qtape$ map that are not zero.
 Apart from incorporating the qubit mapping, applying gates and measuring qubits works equivalently as in standard statevector simulators.
 
+\subsection{Translation from brainfuq to qiskit}
+\label{sec:approach-translations}
+
 % translation to openqasm/qiskit
+
+\subsection{Examples}
+\label{sec:approach-examples}
 
 % evaluation: ghz, grover, qft, 
 
-% correctness confirmed by tests ?
+\subsection{Edge Case Inputs}
+\label{sec:approach-edge-cases}

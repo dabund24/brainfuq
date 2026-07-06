@@ -2,7 +2,15 @@
 
 % Include important code snippets such that we know how to use your code.
 
+\subsection{System Architecture and Overview}
+\label{sec:use-architecture}
+
+% Overview over directories and files in the repository: file structure
+% Class diagram for different modules: showing realization of abstract quantum\_interpreter etc.
+
 \subsection{Environment Setup}
+\label{sec:use-env-setup}
+
 To ensure dependencies do not conflict with your system-wide Python installation, we recommend executing this project within an isolated virtual environment. 
 From the project's root directory, initialize and activate the environment, then install the package along with its required dependencies in editable mode by running:
 
@@ -29,6 +37,8 @@ pip install -e .
 By utilizing the \texttt{-e} flag, the source code inside the \texttt{src/} directory is linked directly to your active environment. This allows any absolute imports to resolve automatically from anywhere on your system.
 
 \subsection{Using the Interpreter to create a GHZ State}
+\label{sec:use-interpreter}
+
 The script located at \texttt{examples/ghz.py} (see Listing~\ref{lst:ghz_example}) initializes the environment, structures the custom quantum program string, and executes it.
 
 \begin{lstlisting}[language=Python, caption=examples/ghz.py, label={lst:ghz_example}]
@@ -52,7 +62,10 @@ program += "[#}*-]"
 interpreter.interpret_program(program)
 print(simulator)
 
-
 # reset interpreter before interpreting the next program
 interpreter.reset()
 \end{lstlisting}
+
+\subsection{Translating between Brainfuq and Qiskit}
+\label{sec:use-translator}
+
