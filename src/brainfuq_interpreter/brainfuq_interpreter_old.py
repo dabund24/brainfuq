@@ -105,10 +105,12 @@ def interpret_brainfuq(program: str) -> tuple[dict, dict, dict]:
                     classical_tape[classical_ptr] = np.uint8(0)
 
             case '+':
-                classical_tape[classical_ptr] += 1
+                val = int(classical_tape[classical_ptr])
+                classical_tape[classical_ptr] = np.uint8((val + 1) % 256) # avoid implicit upcast
 
             case '-':
-                classical_tape[classical_ptr] -= 1
+                val = int(classical_tape[classical_ptr])
+                classical_tape[classical_ptr] = np.uint8((val - 1) % 256)
 
             case '.':
                 print(classical_tape[classical_ptr])
@@ -135,6 +137,9 @@ def apply_gate(quantum_tape: dict[int, complex], qubit_map: dict[int, int], cont
     If the control_ptr is not None the corresponding qubit controls the operation.
     The sparse quantum_tape gets updated in-place.
     """
+
+    if control_ptr is not None and control_ptr == target_ptr:
+        raise ValueError("Control qubit and target qubit cannot be the same.")
 
     if control_ptr is not None:
         control_qubit = qubit_map[control_ptr]
@@ -205,6 +210,7 @@ def measure_qubit(quantum_tape: dict[int, complex], qubit_map: dict[int, int], q
         if (state_int & bit_mask) == 0:
             prob_0 += state_prob
             
+    prob_0 = max(0.0, min(1.0, prob_0))
     prob_1 = 1.0 - prob_0
 
     measured_value = np.random.choice([0, 1], p=[prob_0, prob_1])
@@ -229,7 +235,7 @@ def measure_qubit(quantum_tape: dict[int, complex], qubit_map: dict[int, int], q
     if verbose:
         print(measured_value)
 
-    return measured_value, quantum_tape
+    return measured_value
 
 
 def get_quantum_state(quantum_tape, qubit_map):
@@ -281,6 +287,9 @@ def classical_cond_jmp(
     depth = 1
     while depth > 0:
         c += sign
+        if c < 0 or c >= len(program):
+            raise SyntaxError("Unmatched brackets '[' or ']' detected.")
+        
         if program[c] == '[':
             depth += sign
         elif program[c] == ']':
