@@ -32,10 +32,12 @@ class BrainfuqClassicalInterpreter:
                     self.__classical_tape[self.__classical_ptr] = np.uint8(0)
 
             case '+':
-                self.__classical_tape[self.__classical_ptr] += 1
+                val = int(self.__classical_tape[self.__classical_ptr])
+                self.__classical_tape[self.__classical_ptr] = np.uint8((val + 1) % 256)
 
             case '-':
-                self.__classical_tape[self.__classical_ptr] -= 1
+                val = int(self.__classical_tape[self.__classical_ptr])
+                self.__classical_tape[self.__classical_ptr] = np.uint8((val - 1) % 256)
 
             case '.':
                 print(self.__classical_tape[self.__classical_ptr])
@@ -71,6 +73,9 @@ class BrainfuqClassicalInterpreter:
         depth = 1
         while depth > 0:
             c += sign
+            if c < 0 or c >= len(program):
+                raise SyntaxError("Unmatched brackets '[' or ']' detected.")
+            
             if program[c] == '[':
                 depth += sign
             elif program[c] == ']':

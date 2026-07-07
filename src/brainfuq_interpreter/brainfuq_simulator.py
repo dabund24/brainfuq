@@ -46,6 +46,10 @@ class BrainfuqSimulator(BrainfuqQuantumInterpreter[tuple[dict[int, complex], dic
         If the control_ptr is not None the corresponding qubit controls the operation.
         The sparse quantum_tape gets updated in-place.
         """
+            
+        if self._control_qubit_ptr is not None and self._control_qubit_ptr == self._quantum_ptr:
+            raise ValueError("Control qubit and target qubit cannot be the same.")        
+
         if self._measurement_control_active and self.__last_measured == 0:
             return
 
@@ -113,6 +117,7 @@ class BrainfuqSimulator(BrainfuqQuantumInterpreter[tuple[dict[int, complex], dic
             if (state_int & bit_mask) == 0:
                 prob_0 += state_prob
 
+        prob_0 = max(0.0, min(1.0, prob_0))
         prob_1 = 1.0 - prob_0
 
         self.__last_measured = np.random.choice([0, 1], p=[prob_0, prob_1])
