@@ -8,7 +8,6 @@ def optimize_brainfuq(bfqc: str) -> str:
     :return: The optimized Brainfuq program
     """
 
-    bfqc = _one_time_optimizations(bfqc)
     while True:
         optimized_bfqc = _fixpoint_optimizations(bfqc)
         if optimized_bfqc == bfqc: # fixpoint reached
@@ -23,11 +22,4 @@ def _fixpoint_optimizations(bfqc: str) -> str:
         return bfqc.replace("{}", "")
 
     bfqc = _remove_repeated_pointer_moves(bfqc)
-    return bfqc
-
-def _one_time_optimizations(bfqc: str) -> str:
-    def _remove_trailing_pointer_moves(bfqc: str) -> str:
-        return re.sub("[{}]*$", "", bfqc)
-
-    bfqc = _remove_trailing_pointer_moves(bfqc)
     return bfqc
