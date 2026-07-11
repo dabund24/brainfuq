@@ -4,7 +4,7 @@ from typing import final
 class BrainfuqQuantumInterpreter[T](ABC):
     SUPPORTED_OPS = set('}{*~;#?:')
 
-    def __init__(self, verbose: bool):
+    def __init__(self, verbose: bool = True):
         self._verbose = verbose
         self.reset()
 

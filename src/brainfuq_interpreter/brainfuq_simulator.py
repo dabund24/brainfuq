@@ -11,7 +11,7 @@ class BrainfuqSimulator(BrainfuqQuantumInterpreter[tuple[dict[int, complex], dic
     H_GATE = np.array([[1, 1], [1, -1]]) / np.sqrt(2)
     T_GATE = np.array([[1, 0], [0, np.exp(1j * np.pi / 4)]])
 
-    def __init__(self, verbose=False):
+    def __init__(self, verbose=True):
         super().__init__(verbose)
 
     @override
