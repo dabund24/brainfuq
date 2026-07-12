@@ -150,18 +150,54 @@ class BrainfuqSimulator(BrainfuqQuantumInterpreter[tuple[dict[int, complex], dic
         output_terms = []
 
         for state_int, amplitude in self.__quantum_tape.items():
+            
+            real_part = amplitude.real
+            imag_part = amplitude.imag
+
+            has_real = abs(real_part) >= 1e-9
+            has_imag = abs(imag_part) >= 1e-9
+
+            if not has_real and not has_imag:
+                continue
 
             spatial_bitstring = self.__get_spatial_bitstring(state_int, self._qubit_map)
 
-            if isinstance(amplitude, complex):
-                # Format complex numbers as (a + bj) if they have a significant complex component
-                amp_str = f"{amplitude.real:.3f}" if abs(amplitude.imag) < 1e-9 else f"({amplitude.real:.3f} + {amplitude.imag:.3f}j)"
-            else:
-                amp_str = f"{amplitude:.3f}"
+            is_negative = False
 
-            output_terms.append(f"{amp_str} |{spatial_bitstring}⟩")
+            if has_real and has_imag:
+                sign_char = "+" if imag_part > 0 else "-"
+                amp_str = f"({real_part:.3f} {sign_char} {abs(imag_part):.3f}j)"
+
+            elif has_imag:
+                is_negative = imag_part < 0
+                abs_imag = abs(imag_part)
+                # drop "1.000" prefix for clean 1j / -1j states
+                amp_str = "j" if abs(abs_imag - 1.0) < 1e-9 else f"{abs_imag:.3f}j"
+
+            else:
+                is_negative = real_part < 0
+                abs_real = abs(real_part)
+                # drop prefix for clean 1 or -1 basis state
+                amp_str = "" if abs(abs_real - 1.0) < 1e-9 else f"{abs_real:.3f}"
+
+            term_str = f"{amp_str} |{spatial_bitstring}⟩"
+            
+            if is_negative:
+                output_terms.append(("- ", term_str))
+            else:
+                output_terms.append(("+ ", term_str))
         
-        return " + ".join(output_terms)
+        if not output_terms:
+            return "0"
+
+        final_str = ""
+        for i, (sign, term) in enumerate(output_terms):
+            if i == 0:
+                final_str += f"-{term}" if sign == "- " else term
+            else:
+                final_str += f" {sign}{term}"
+
+        return final_str
     
 
     def __get_spatial_bitstring(self, state_int, qubit_map):

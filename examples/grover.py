@@ -7,7 +7,7 @@ from qiskit.circuit.library import grover_operator
 
 from qiskit_to_brainfuq import qiskit_to_brainfuq
 
-N = 6
+N = 5
 
 # set to False to output evolved statevector (incl. aux. qubits)
 measure = True 
