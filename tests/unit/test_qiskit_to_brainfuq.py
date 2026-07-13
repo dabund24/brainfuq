@@ -12,14 +12,14 @@ def test_all_gates():
     qc.append(TGate().control(), [1, 0])
     qc.measure(1, 0)
     bfqc = qiskit_to_brainfuq(qc)
-    assert bfqc == ";}*~{#}*{#}~#{;}:"
+    assert bfqc == ";}*~{#}*{#}~#{;}:{"
 
 def test_qft():
     qc= qk.QuantumCircuit(3)
     qc.append(QFTGate(3), [0, 1, 2])
     qc = qc.decompose()
     bfqc = qiskit_to_brainfuq(qc)
-    assert bfqc == "}}~#{;}#{;~}#{{;}#{;}#{;~#}}*#{{*#}}*"
+    assert bfqc == "}}~#{;}#{;~}#{{;}#{;}#{;~#}}*#{{*#}}*{{"
 
 def test_bell_state():
     qc = qk.QuantumCircuit(2)
@@ -27,4 +27,4 @@ def test_bell_state():
     qc.cx(0, 1)
     qc.measure_all()
     bfqc = qiskit_to_brainfuq(qc)
-    assert bfqc == "~#}*{:}:"
+    assert bfqc == "~#}*{:}:{"
