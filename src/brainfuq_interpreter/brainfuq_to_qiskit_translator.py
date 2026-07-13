@@ -82,19 +82,27 @@ class QiskitBrainfuqInterpreter(BrainfuqQuantumInterpreter[QuantumCircuit]):
     def return_state(self) -> QuantumCircuit:
         num_qubits = len(self._qubit_map)
         qc = QuantumCircuit(num_qubits, self._num_cbits)
-        
+
+        # sort the tape pointers to match the physical left-to-right tape order
+        sorted_ptrs = sorted(self._qubit_map.keys())
+        # map qubit_map indices (chronological) to physical wires (spatial)
+        spatial = {self._qubit_map[ptr]: wire_idx for wire_idx, ptr in enumerate(sorted_ptrs)}
+
         for op_type, target, control, c_control in self._operations:
             
+            spatial_target = spatial[target]
+            spatial_control = spatial[control] if control is not None else None
+
             if op_type == "measure":
-                qc.measure(target, c_control)
+                qc.measure(spatial_target, c_control)
                 continue
                 
             # Apply classical measurement conditioning if active
             if c_control is not None:
                 with qc.if_test((qc.clbits[c_control], 1)):
-                    self.__append_regular_op_to_qiskit_circuit(qc, op_type, target, control)
+                    self.__append_regular_op_to_qiskit_circuit(qc, op_type, spatial_target, spatial_control)
             else:
-                self.__append_regular_op_to_qiskit_circuit(qc, op_type, target, control)
+                self.__append_regular_op_to_qiskit_circuit(qc, op_type, spatial_target, spatial_control)
   
         return qc
 

@@ -10,6 +10,11 @@ def _assert_circuit_equivalence(expected_qiskit: QuantumCircuit, brainfuq: str):
 
     assert str(expected_qiskit) == str(quantum_state)
 
+def test_neg_qubit_ptr():
+    qc = QuantumCircuit(2, 0)
+    qc.x(1)
+    qc.h(0)
+    _assert_circuit_equivalence(qc, "*{~")
 
 def test_all_ops():
     qc = QuantumCircuit(2, 2)
