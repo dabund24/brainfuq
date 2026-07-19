@@ -1,5 +1,76 @@
 \section{Approach}
 
+\def\foo{str}
+
+\begin{figure}
+    \centering
+    \begin{tikzpicture}
+        \umlclass[template={T}, x=0, y=0, anchor=north west]{BrainfuqInterpreter}{}{
+            $+$ reset(): \texttt{None} \\
+            $+$ interpret\_program(p: \texttt{str}): \texttt{tuple[T, dict[int, np.uint8]]} \\
+        }
+
+        \umlclass[type=abstract, template={T}, x=16.8, y=0, anchor=north east]{BrainfuqQuantumInterpreter}{
+            $\#$ quantum\_ptr : \texttt{int} \\
+            $\#$ qubit\_map : \texttt{dict[int, int]} \\
+            $\#$ control\_qubit\_ptr : \texttt{int | None} \\
+            $-$ measurement\_control\_active : \texttt{bool} \\
+            $-$ verbose : \texttt{bool} \\
+            $-$ next\_idx : \texttt{int}
+        }{
+            $+$ reset() : \texttt{None} \\
+            \umlvirt{$\#$ reset\_simulator() : \texttt{None}} \\
+            $-$ move\_right() : \texttt{None} \\
+            $-$ move\_left() : \texttt{None} \\
+            $-$ x() : \texttt{None} \\
+            \umlvirt{$\#$ apply\_x() : \texttt{None}} \\
+            \umlvirt{$\#$ measure() : \texttt{None}} \\
+            $+$ apply\_operation(op : str) : \texttt{None} \\
+            \umlvirt{$+$ return\_state() : T} \\
+        }
+
+        \umlclass[x=0, y=-4, anchor=north west]{BrainfuqClassicalInterpreter}{
+            \umlstatic{$-$ SUPPORTED\_OPS : \texttt{str}} \\
+            $-$ classical\_tape : \texttt{dict[int, np.uint8]} \\
+            $-$ classical\_ptr : \texttt{int} \\
+        }{
+            $+$ reset() : \texttt{None} \\
+            $+$ apply\_operation(): \texttt{int} \\
+            $+$ return\_state(): \texttt{int} \\
+        }
+
+        \umlclass[x=0, y=-13, anchor=south west]{BrainfuqSimulator}{
+            \umlstatic{$-$ X\_GATE : \texttt{NDArray}} \\
+        }{
+            $\#$ reset\_simulator() : \texttt{None} \\
+            $\#$ apply\_x() : \texttt{None} \\
+            $-$ apply\_gate(gate\_matrix: \texttt{NDArray}) : \texttt{None} \\
+            $\#$ measure() : \texttt{None} \\
+            $+$ return\_state() : \texttt{tuple[dict[int, complex], dict[int, int]]} \\
+        }
+
+
+        \umlclass[x=16.8, y=-13, anchor=south east]{QiskitBrainfuqInterpreter}{
+            $-$ operations : \texttt{list[tuple]} \\
+            $-$ num\_cbits : \texttt{int} \\
+            $-$ last\_cbit : \texttt{int | None}
+        }{
+            $\#$ reset\_simulator() : \texttt{None} \\
+            $-$ get\_op\_context() : \texttt{tuple} \\
+            $\#$ apply\_x() : \texttt{None} \\
+            $\#$ measure() : \texttt{None} \\
+            $+$ return\_state() : QuantumCircuit \\
+        }
+
+        % Generalization / Inheritance Relationship
+        \umlVHVinherit[arm2=-4.3cm, stereo={T $\to$ tuple[dict[int, complex], dict[int, int]]}]{BrainfuqSimulator}{BrainfuqQuantumInterpreter}
+        \umlVHVinherit[arm2=-4.3cm, stereo={T $\to$ QuantumCircuit}]{QiskitBrainfuqInterpreter}{BrainfuqQuantumInterpreter}
+        \umlVHVcompo[arm2=0.5cm, arg=classical\_interpreter, pos=0.45, mult=1]{BrainfuqInterpreter}{BrainfuqClassicalInterpreter}
+        \umlVHcompo[arm1=-0.9cm, arg=quantum\_interpreter, mult=1, align=right, pos=1.48, anchor2=10]{BrainfuqInterpreter}{BrainfuqQuantumInterpreter}
+    \end{tikzpicture}
+    \caption{UML diagram of our \textsc{Brainfuq} interpreter. Some attributes and methods, including those related to $H$ and $T$ gates, were omitted to improve clarity. To improve the readability of attribute and method names, leading underscores are omitted.}
+\end{figure}
+
 % This should be the most detailed section in general. How did you approach to solve your problem? What worked and what did not work. Here, you should also add your evaluations.
 
 \subsection{Quantum Tape}
