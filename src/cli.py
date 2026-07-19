@@ -40,7 +40,7 @@ Brainfuck Operations operate on a classical tape:
 Brainfuq Operations operate on a quantum tape:
   }  Increment pointer
   {  Decrement pointer
-  *  Apply H gate to qubit at pointer
+  *  Apply X gate to qubit at pointer
   ~  Apply H gate to qubit at pointer
   ;  Apply T gate to qubit at pointer
   :  Measure qubit at pointer and print outcome
