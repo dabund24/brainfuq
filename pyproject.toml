@@ -5,6 +5,7 @@ dependencies = [
   "qiskit",
   "numpy",
   "pytest",
+  "pylatexenc"
 ]
 requires-python = ">= 3.14"
 authors = [

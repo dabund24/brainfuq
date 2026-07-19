@@ -39,13 +39,17 @@ By utilizing the \texttt{-e} flag, the source code inside the \texttt{src/} dire
 \subsection{Using the Interpreter to create a GHZ State}
 \label{sec:use-interpreter}
 
-The script located at \texttt{examples/ghz.py} (see Listing~\ref{lst:ghz_example}) initializes the environment, structures the custom quantum program string, and executes it.
+In the following we will look at the script \texttt{examples/ghz.py} (see Listing~\ref{lst:ghz_example}) to see how to interpret a brainfuq program that creates a GHZ-State and how to translate it into a qiskit circuit.
 
 \begin{lstlisting}[language=Python, caption=examples/ghz.py, label={lst:ghz_example}]
 from brainfuq_interpreter.brainfuq_interpreter import BrainfuqInterpreter
 from brainfuq_interpreter.brainfuq_simulator import BrainfuqSimulator
+from brainfuq_interpreter.brainfuq_to_qiskit_translator import QiskitBrainfuqInterpreter
 
 N = 10
+
+draw = True
+output_method = "latex_source" # default console output for None or "text"
 
 simulator = BrainfuqSimulator()
 interpreter = BrainfuqInterpreter(simulator)
@@ -54,7 +58,7 @@ interpreter = BrainfuqInterpreter(simulator)
 program = "~"
 
 # loop counter
-program += "+" * N
+program += "+" * (N - 1)
 
 # loop body: add a cnot and decrement loop counter
 program += "[#}*-]"
@@ -64,8 +68,35 @@ print(simulator)
 
 # reset interpreter before interpreting the next program
 interpreter.reset()
+
+if draw:
+    translation_interpreter = BrainfuqInterpreter(QiskitBrainfuqInterpreter(verbose=False))
+    qc, _ = translation_interpreter.interpret_program(program)
+    print(qc.draw(output=output_method))
+
 \end{lstlisting}
 
-\subsection{Translating between Brainfuq and Qiskit}
-\label{sec:use-translator}
+Running the script outputs \texttt{0.707 |0000000000⟩ + 0.707 |1111111111⟩} as well as qiskit circuit printed as latex source code (s. \Cref{fig:ghz_circuit}).
+
+\begin{figure}[htbp]
+\centering
+\scalebox{1.0}{
+\Qcircuit @C=1.0em @R=0.2em @!R { \\
+	 	\nghost{{q}_{0} :  } & \lstick{{q}_{0} :  } & \gate{\mathrm{H}} & \ctrl{1} & \qw & \qw & \qw & \qw & \qw & \qw & \qw & \qw & \qw & \qw\\
+	 	\nghost{{q}_{1} :  } & \lstick{{q}_{1} :  } & \qw & \targ & \ctrl{1} & \qw & \qw & \qw & \qw & \qw & \qw & \qw & \qw & \qw\\
+	 	\nghost{{q}_{2} :  } & \lstick{{q}_{2} :  } & \qw & \qw & \targ & \ctrl{1} & \qw & \qw & \qw & \qw & \qw & \qw & \qw & \qw\\
+	 	\nghost{{q}_{3} :  } & \lstick{{q}_{3} :  } & \qw & \qw & \qw & \targ & \ctrl{1} & \qw & \qw & \qw & \qw & \qw & \qw & \qw\\
+	 	\nghost{{q}_{4} :  } & \lstick{{q}_{4} :  } & \qw & \qw & \qw & \qw & \targ & \ctrl{1} & \qw & \qw & \qw & \qw & \qw & \qw\\
+	 	\nghost{{q}_{5} :  } & \lstick{{q}_{5} :  } & \qw & \qw & \qw & \qw & \qw & \targ & \ctrl{1} & \qw & \qw & \qw & \qw & \qw\\
+	 	\nghost{{q}_{6} :  } & \lstick{{q}_{6} :  } & \qw & \qw & \qw & \qw & \qw & \qw & \targ & \ctrl{1} & \qw & \qw & \qw & \qw\\
+	 	\nghost{{q}_{7} :  } & \lstick{{q}_{7} :  } & \qw & \qw & \qw & \qw & \qw & \qw & \qw & \targ & \ctrl{1} & \qw & \qw & \qw\\
+	 	\nghost{{q}_{8} :  } & \lstick{{q}_{8} :  } & \qw & \qw & \qw & \qw & \qw & \qw & \qw & \qw & \targ & \ctrl{1} & \qw & \qw\\
+	 	\nghost{{q}_{9} :  } & \lstick{{q}_{9} :  } & \qw & \qw & \qw & \qw & \qw & \qw & \qw & \qw & \qw & \targ & \qw & \qw\\
+\\ }}
+\caption{Rendering of the latex source code produced for the qiskit circuit translated from brainfuq}
+\label{fig:ghz_circuit}
+\end{figure}
+
+%\subsection{Translating between Brainfuq and Qiskit}
+%\label{sec:use-translator}
 

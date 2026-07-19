@@ -34,7 +34,32 @@ Apart from incorporating the qubit mapping, applying gates and measuring qubits 
 \subsection{Examples}
 \label{sec:approach-examples}
 
-% evaluation: ghz, grover, qft, 
+To showecasse the functionality of our interpreter and translators, we implemented small instances of some quantum algorithms in the \texttt{examples} folder of the repository.
+The script \texttt{examples/ghz.py} (s. Listing \ref{lst:ghz_example}) initializes a $N$-qubit GHZ state.
+After applying the Hadamard gate on the first qubit, it leverages classical instructions to iteratively add CNOT gates and moving the quantum pointer.
+The number of qubits of the resulting state is controlled by the parameter variable $N$, which is used to set up the loop counter variable that is decremented at the end of each iteration.
+For instance $N=5$ produces the brainfuq program \texttt{"\textasciitilde +++++[\#\}*-]"}.
+As expected, processing the string puts the quantum tape into the state $\frac{1}{\sqrt{2}} (\ket{00000} + \ket{11111})$, which we confirm by printing the string representation of our quantum simulator.
+
+Further, \texttt{examples/quantum-teleportation.py} implements the circuit for teleporting a qubit through a shared pair of entangled qubits.
+In addition to the standard quantum logic it also uses the \texttt{?} instruction to apply Z and X gates based on the classical measurement results.
+We initialize q0 as $\ket{-}$ through \texttt{"\textasciitilde ;;;"}, i.e. a Hadamard and 4 consecutive T gates, simulating a Z gate.
+We confirm that after the teleportation logic the state of the system features q0 and q1 in their collapsed measurement state and q2 in the $\ket{-}$ state.
+Printing the entire system state, we get the \texttt{-0.707 |011⟩ + 0.707 |010⟩} or versions with arbitrary other combinations of the first two qubits.
+
+Lastly, \texttt{examples/grover.py} shows how different software components work together.
+To start it translates a qiskit Grover operator, obtained by concatenating a phase oracle and a diffusion operator, into a brainfuq program string.
+This string is then embedded into the full brainfuq program as the body to a loop which is executed for the optimal number of Grover iterations which we calculate classically for the given oracle.
+We prefix the program with Hadamard gates setting the search qubits into an equal superposition and an optional sufix for measuring the search qubits.
+In the script we use an oracle which marks exactly the basis state consisting only of 1-bits, i.e. only one solution.
+To prevent this oracle from blowing up in terms of the number of used basis gates we implement a version with $N-2$ auxiliary qubits.
+Although this oracle is relatively compact, it still produces brainfuq programs with a significant count of overall instructions.
+For $N=6$ for instance the brainfuq program of a single Grover operator is comprised of 21255 classical instruction (including pointer shifts), which results in an overall runtime of almost $30s$. 
+Running the script with \texttt{measure=False} and $N=3$ produces the following state where the last qubit is an auxiliary: \texttt{0.972 |1110⟩ - 0.088 |1100⟩ - 0.088 |1000⟩ - 0.088 |0000⟩ - 0.088 |0100⟩ - 0.088 |1010⟩ - 0.088 |0010⟩ - 0.088 |0110⟩}.
 
 \subsection{Edge Case Inputs}
 \label{sec:approach-edge-cases}
+
+Given the brainfuq instructions presented in \Cref{sec:background} there are some edge case inputs for which the expected behavior of the system is unclear.
+For repeated \texttt{"\#"} without a resetting gate instruction, i.e. \texttt{"*"}, \texttt{"\textasciitilde"} or \texttt{";"}, in between the last \texttt{"\#"} governs which qubit controls the next gate.
+If the program does not feature any measurement instructions \texttt{":"} before a \texttt{"?"} the next gate is not executed as the last measurement did not exist and therefore was not $1$ in particular.
