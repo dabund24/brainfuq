@@ -7,17 +7,12 @@ from brainfuq_interpreter.brainfuq_simulator import BrainfuqSimulator
 def simulate_brainfuq(program: str, verbose: bool):
     print("Simulating Brainfuq")
 
-    interpreter = BrainfuqInterpreter(BrainfuqSimulator())
-    
-    quantum_tape, classical_tape = interpreter.interpret_program(program)
+    brainfuq_simulator = BrainfuqSimulator()
+    interpreter = BrainfuqInterpreter(brainfuq_simulator)
+    _, classical_tape = interpreter.interpret_program(program)
     
     if verbose:
-        print("\nQuantum Tape:")
-        print(quantum_tape)
-
-        print("\nClassical Tape:")
-        print(classical_tape)
-
+        print(f"\nQuantum State:\n{brainfuq_simulator}\n\nClassical tape:\n{classical_tape}")
 
 def translate_to_qiskit(program: str):
     print("Translating Brainfuq to Qiskit Circuit")
@@ -57,11 +52,28 @@ Brainfuq Operations operate on a quantum tape:
     
     subparsers = parser.add_subparsers(dest="command", required=True, help="available subcommands")
 
-    simulate_parser = subparsers.add_parser("simulate", help="simulate a brainfuq program")
-    simulate_parser.add_argument("program", type=str, help="the brainfuq program string inside quotes")
-    simulate_parser.add_argument("-v", "--verbose", action="store_true", help="print the quantum and classical tapes after simulation")
+    simulate_parser = subparsers.add_parser(
+        "simulate",
+        help="simulate a brainfuq program. For additional help, run brainfuq simulate -h",
+        description="""Simulate a brainfuq program.
 
-    qiskit_parser = subparsers.add_parser("to-qiskit", help="translate brainfuq program into a qiskit circuit")
+Example:
+brainfuq simulate "~,-[#}*-]" --verbose
+Simulate a GHZ state, where the amount of qubits are read from stdin. Print the quantum state and the contents of the classical tape thereafter""",
+        formatter_class=argparse.RawTextHelpFormatter
+    )
+    simulate_parser.add_argument("program", type=str, help="the brainfuq program string inside quotes")
+    simulate_parser.add_argument("-v", "--verbose", action="store_true", help="print the quantum state and classical tape after simulation")
+
+    qiskit_parser = subparsers.add_parser(
+        "to-qiskit",
+        help="translate a brainfuq program into a qiskit circuit. For additional help, run brainfuq to-qiskit -h",
+        description="""Translate a brainfuq program into a qiskit circuit.
+
+Example:
+brainfuq to-qiskit "~,-[#}*{:}-]:"
+Print a qiskit circuit generating a GHZ state with subsequent measure operations, where the amount of qubits are read from stdin.""",
+        formatter_class=argparse.RawTextHelpFormatter)
     qiskit_parser.add_argument("program", type=str, help="the brainfuq program string inside quotes")
 
     args = parser.parse_args()
