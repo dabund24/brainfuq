@@ -1,7 +1,47 @@
 \section{Background}
 \label{sec:background}
-% Explain necessary background in a concise way which is needed to understand the project.
-
 % origin
 % instructions
 % universal basis
+
+\begin{table}
+    \centering
+    % --- First Sub-table ---
+    \begin{subtable}[t]{0.49\linewidth}
+        \centering
+        \begin{tabular}{cl}
+            \toprule
+            \texttt{>} & Increment pointer \\
+            \texttt{<} & Decrement pointer \\
+            \texttt{+} & Increment byte at pointer \\
+            \texttt{-} & Decrement byte at pointer \\
+            \texttt{.} & Print byte at pointer \\
+            \texttt{,} & Write user input to byte at pointer \\
+            \texttt{[} & Go past matching \texttt{]} if byte at pointer is 0 \\
+            \texttt{]} & Return to matching \texttt{[} if byte at ptr is not 0\\
+            \bottomrule
+        \end{tabular}
+        \caption{\bfck{} commands}
+        \label{tab:bfck-commands}
+    \end{subtable}
+    \begin{subtable}[t]{0.49\linewidth}
+        \centering
+        \begin{tabular}{cl}
+            \toprule
+            \texttt{\}} & Increment pointer \\
+            \texttt{\{} & Decrement pointer \\
+            \texttt{*} & Apply $X$ gate to qubit at pointer \\
+            \texttt{\~} & Apply $H$ gate to qubit at pointer \\
+            \texttt{;} & Apply $T$ gate to qubit at pointer \\
+            \texttt{:} & Measure qubit at pointer and print outcome \\
+            \texttt{\#} & Control next gate on the qubit at pointer \\
+            \texttt{?} & Apply next gate iff last measurement was 1 \\
+            \bottomrule
+        \end{tabular}
+        \caption{\bfq{} commands}
+        \label{tab:bfq-commands}
+    \end{subtable}
+    
+    \caption{This is the main caption for both tables side by side.}
+    \label{tab:main}
+\end{table}
