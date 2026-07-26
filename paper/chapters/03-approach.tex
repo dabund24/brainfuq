@@ -102,11 +102,9 @@ For readers interested in a standalone implementation of the simulator not using
 \subsection{Translation to \qiskit{}}
 \label{sec:approach-translations}
 
-Implementing the translator to \qiskit{} is more trivial.
+Implementing the translator to \qiskit{} is comparatively straightforward, but still provided a few challenges. The first one was ensuring that the qubits on the resulting qiskit circuit follow the same order as the ones on the quantum tape, which we wanted to ensure. With this an on-the-fly construction of the circuit is out of question. To accomodate for this, we store all operations to apply with their the target index, potential quantum control index, and potential classical control index in the list \texttt{operations}. In \texttt{return\_state()}, where we know all existing qubits, we finally construct the \qiskit{} circuit.
+Another challenge was determining how the \texttt{?} operation should be handled. In our implementation, we write each measurement to a new classical bit of the \qiskit{} circuit, and then realize \texttt{?} using the \texttt{if\_test()} method of qiskit circuits applied to the last used classical bit.
 
-One challenge was determining how the \texttt{?} operation should be handled. In our implementation, we write each measurement to a new classical bit of the \qiskit{} circuit, and then realize \texttt{?} using the \texttt{if\_test()} method of qiskit circuits applied to the last used classical bit.
-
-Another challenge was ensuring that the qubits on the resulting qiskit circuit follow the same order as the ones on the quantum tape, which we wanted to ensure. With this an on-the-fly construction of the circuit is out of question. To accomodate for this, we store all operations to apply with their the target index, potential quantum control index, and potential classical control index in the list \texttt{operations}. In \texttt{return\_state()}, where we know all existing qubits, we finally construct the \qiskit{} circuit.
 
 \subsection{Examples}
 \label{sec:approach-examples}
@@ -115,12 +113,12 @@ To showecasse the functionality of our interpreter and translators, we implement
 The script \texttt{examples/ghz.py} (s. Listing \ref{lst:ghz_example}) initializes a $N$-qubit GHZ state.
 After applying the Hadamard gate on the first qubit, it leverages classical instructions to iteratively add CNOT gates and moving the quantum pointer.
 The number of qubits of the resulting state is controlled by the parameter variable $N$, which is used to set up the loop counter variable that is decremented at the end of each iteration.
-For instance $N=5$ produces the brainfuq program \texttt{"\textasciitilde +++++[\#\}*-]"}.
+For instance $N=5$ produces the brainfuq program \texttt{\textasciitilde +++++[\#\}*-]}.
 As expected, processing the string puts the quantum tape into the state $\frac{1}{\sqrt{2}} (\ket{00000} + \ket{11111})$, which we confirm by printing the string representation of our quantum simulator.
 
 Further, \texttt{examples/quantum-teleportation.py} implements the circuit for teleporting a qubit through a shared pair of entangled qubits.
 In addition to the standard quantum logic it also uses the \texttt{?} instruction to apply Z and X gates based on the classical measurement results.
-We initialize q0 as $\ket{-}$ through \texttt{"\textasciitilde ;;;"}, i.e. a Hadamard and 4 consecutive T gates, simulating a Z gate.
+We initialize q0 as $\ket{-}$ through \texttt{\textasciitilde ;;;}, i.e. a Hadamard and 4 consecutive T gates, simulating a Z gate.
 We confirm that after the teleportation logic the state of the system features q0 and q1 in their collapsed measurement state and q2 in the $\ket{-}$ state.
 Printing the entire system state, we get the \texttt{-0.707 |011⟩ + 0.707 |010⟩} or versions with arbitrary other combinations of the first two qubits.
 
@@ -138,5 +136,5 @@ Running the script with \texttt{measure=False} and $N=3$ produces the following 
 \label{sec:approach-edge-cases}
 
 Given the brainfuq instructions presented in \Cref{sec:background} there are some edge case inputs for which the expected behavior of the system is unclear.
-For repeated \texttt{"\#"} without a resetting gate instruction, i.e. \texttt{"*"}, \texttt{"\textasciitilde"} or \texttt{";"}, in between the last \texttt{"\#"} governs which qubit controls the next gate.
-If the program does not feature any measurement instructions \texttt{":"} before a \texttt{"?"} the next gate is not executed as the last measurement did not exist and therefore was not $1$ in particular.
+For repeated \texttt{\#} without a resetting gate instruction, i.e. \texttt{*}, \texttt{\textasciitilde} or \texttt{;}, in between the last \texttt{\#} governs which qubit controls the next gate.
+If the program does not feature any measurement instructions \texttt{:} before a \texttt{?} the next gate is not executed as the last measurement did not exist and therefore was not $1$ in particular.
