@@ -1,6 +1,9 @@
 \section{Approach}
 
-\def\foo{str}
+With the language to implement introduced, we proceed by presenting our approach.
+
+\subsection{Architecture}
+\label{sec:architecture}
 
 \begin{figure}
     \centering
@@ -29,10 +32,11 @@
             $-$ classical\_ptr : \texttt{int} \\
         }{
             $+$ apply\_operation(op : \texttt{str}): \texttt{int} \\
-            $+$ return\_state(): \texttt{int} \\
+            $+$ return\_state(): \texttt{dict[int, np.uint8]} \\
         }
 
-        \umlclass[x=0, y=-9.3, anchor=south west]{BrainfuqSimulator}{
+        \umlclass[x=0, y=-9.5, anchor=south west]{BrainfuqSimulator}{
+            $-$ quantum\_tape: \texttt{dict[int, complex]} \\
         }{
             $+$ return\_state() : \texttt{tuple[dict[int, complex], dict[int, int]]} \\
             $\#$ apply\_x() : \texttt{None} \\
@@ -40,7 +44,8 @@
         }
 
 
-        \umlclass[x=16.8, y=-9.3, anchor=south east]{QiskitBrainfuqInterpreter}{
+        \umlclass[x=16.8, y=-9.5, anchor=south east]{QiskitBrainfuqInterpreter}{
+            $+$ operations: \texttt{list[tuple]} \\
         }{
             $+$ return\_state() : QuantumCircuit \\
             $\#$ apply\_x() : \texttt{None} \\
@@ -53,15 +58,25 @@
         \umlVHVcompo[arm2=0.5cm, arg=classical\_interpreter, pos=0.45, mult=1]{BrainfuqInterpreter}{BrainfuqClassicalInterpreter}
         \umlVHcompo[arm1=-0.9cm, arg=quantum\_interpreter, mult=1, align=right, pos=1.48, anchor2=5]{BrainfuqInterpreter}{BrainfuqQuantumInterpreter}
     \end{tikzpicture}
-    \caption{UML diagram of our \textsc{Brainfuq} interpreter. Some attributes and methods, including those related to $H$ and $T$ gates, were omitted to improve clarity. To improve the readability of attribute and method names, leading underscores are omitted.}
+    \caption{\textsc{Uml} diagram of our \textsc{Brainfuq} interpreter. Some attributes and methods, including those related to $H$ and $T$ gates, were omitted to improve clarity. To improve the readability of attribute and method names, leading underscores are omitted.}
+    \label{fig:uml}
 \end{figure}
+
+Our goal was to design a modular architecture striking a good balance between clearly separating concerns and limiting redundancies. The resulting class structure is depicted in the \textsc{uml} diagram depicted in \cref{fig:uml}. We briefly go through each component.
+\begin{description}
+    \item[\texttt{BrainfuqInterpreter}] This is the top-level component responsible for parsing \hb{} programs. Its main concern is stepping through the program and delegating each command to be executed either to the classical or to the quantum interpreter. When the end of the program is reached, the \texttt{return\_state()} methods of the classical and quantum interpreters are called to report the final state.
+    \item[\texttt{BrainfuqClassicalInterpreter}] This component maintains the classical tape, and reports possible jumps to \texttt{BrainfuqInterpreter}.
+    \item[\texttt{BrainfuqQuantumInterpreter}] The second attribute of \texttt{BrainfuqInterpreter} handles quantum operations. In our case, there are two possible quantum-computing related problems to be solved: Simulating the program and converting it to a qiskit circuit. \texttt{BrainfuqQuantumInterpreter} is an abstract class handling the greatest common denominator of those tasks: It maintains the quantum pointer together with the layout of the qubit tape, and stores if the next gate is controlled, what qubit that gate is controlled on, and if the qubit should be applied at all based on the last measurement.
+    \item[\texttt{BrainfuqSimulator}] The first class inheriting from \texttt{BrainfuqQuantumInterpreter} handles the simulator logic. We refer to \cref{sec:approach-quantum-tape} for more details about how this class handles simulation together with its base class.
+    \item[\texttt{QiskitBrainfuqInterpreter}] The other class inheriting from \texttt{BrainfuqQuantumInterpreter} builds a \qiskit{} circuit from the given instructions. We provide further details in \cref{sec:approach-translations}.
+\end{description}
 
 % This should be the most detailed section in general. How did you approach to solve your problem? What worked and what did not work. Here, you should also add your evaluations.
 
-\subsection{Quantum Tape}
+\subsection{Simulation}
 \label{sec:approach-quantum-tape}
 
-The main challenge of implementing a brainfuq interpreter lies in the representation of the quantum tape.
+The main challenge of implementing a brainfuq simulator lies in the representation of the quantum tape.
 In classical brainfuck the tape can be implemented as a plain hash map from indices to tape values.
 The indices are signed integers, i.e. they can take on positive and negative values as the pointer is moved left and right.
 The tape values are typically bytes representing an 8 bit unsigned integer.
@@ -82,10 +97,16 @@ For optimization purposes we generally omit the leading zeros in the bitstrings 
 As a further optimization we only store those amplitudes in the $\qtape$ map that are not zero.
 Apart from incorporating the qubit mapping, applying gates and measuring qubits works equivalently as in standard statevector simulators.
 
-\subsection{Translation from brainfuq to qiskit}
+For readers interested in a standalone implementation of the simulator not using the sorrounding architecture, we refer to \texttt{brainfuq\_interpreter/brainfuq\_interpreter\_old.py}.
+
+\subsection{Translation to \qiskit{}}
 \label{sec:approach-translations}
 
-% translation to openqasm/qiskit
+Implementing the translator to \qiskit{} is more trivial.
+
+One challenge was determining how the \texttt{?} operation should be handled. In our implementation, we write each measurement to a new classical bit of the \qiskit{} circuit, and then realize \texttt{?} using the \texttt{if\_test()} method of qiskit circuits applied to the last used classical bit.
+
+Another challenge was ensuring that the qubits on the resulting qiskit circuit follow the same order as the ones on the quantum tape, which we wanted to ensure. With this an on-the-fly construction of the circuit is out of question. To accomodate for this, we store all operations to apply with their the target index, potential quantum control index, and potential classical control index in the list \texttt{operations}. In \texttt{return\_state()}, where we know all existing qubits, we finally construct the \qiskit{} circuit.
 
 \subsection{Examples}
 \label{sec:approach-examples}

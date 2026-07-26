@@ -4,44 +4,67 @@
 % instructions
 % universal basis
 
-\begin{table}
+In this section, we introduce both \bfck{} and \bfq{}, and describe how both languages can be combined.
+
+\subsection{\bfck{}}
+\label{sec:background-bfck}
+
+In \bfck{}, we operate on an, in principle infinitely sized, array of data. Each entry in the array stores a byte, which is zero at every entry at the start of program execution.\cite{brainfuck-esolangs} A \emph{pointer} allows us to modify or read from the data of the memory cell it is pointing at. We summarize all operations \bfck{} provides in \cref{tab:bfck-commands}.
+
+Note that the operations \texttt{+} and \texttt{-} are to be understood modulo 256. For the pointer index, we assume the tape to extend into both directions. Hence, negative pointer values are valid. The operations \texttt{[} and \texttt{]} allow us to implement loops. With the operations it provides, \bfck{} is \emph{Turing Complete}, meaning that every computation expressible with languagues like C or \textsc{Python} can also be implement in \bfck{}.
+
+\subsection{\bfq{}}
+\label{sec:background-bfq}
+
+\bfq{}, also known as Quantum \bfck{}, follows the same principles as \bfck{}, except for the fact that instead of operating on bytes, \bfq{} works with qubits\cite{brainfuq-esolangs}. In the beginning, all qubits are initialized with the zero-state. A qubit the pointer points at can be modified by applying $H$, $X$, and $T$ gates to it, which can optionally be controlled on other qubits with \texttt{\#}. We summarize all operations it provides in \cref{tab:bfq-commands}. Note that our version slightly differs from the version defined in \cite{brainfuq-esolangs}---both in how the operations are defined and in how the qubits are initialized.
+
+Similarly to how \bfck{} is a turing-complete language, a subset of the gates \bfq{} provides---$H$, $T$, and $CX$ gates---form a \emph{universal gate set}\cite{boykin-2000}. With this property, \bfq{} programs can approximate any quantum state to arbitrary precision\cite{rwth}.
+
+\begin{table}[b]
+  \caption{Operations the esolangs \bfck{} and \bfq{} provide.}
+  \label{tab:main}
+  \centering
+  % --- First Sub-table ---
+  \begin{subtable}[t]{0.49\linewidth}
+    \caption{\bfck{}}
+    \label{tab:bfck-commands}
     \centering
-    % --- First Sub-table ---
-    \begin{subtable}[t]{0.49\linewidth}
-        \centering
-        \begin{tabular}{cl}
-            \toprule
-            \texttt{>} & Increment pointer \\
-            \texttt{<} & Decrement pointer \\
-            \texttt{+} & Increment byte at pointer \\
-            \texttt{-} & Decrement byte at pointer \\
-            \texttt{.} & Print byte at pointer \\
-            \texttt{,} & Write user input to byte at pointer \\
-            \texttt{[} & Go past matching \texttt{]} if byte at pointer is 0 \\
-            \texttt{]} & Return to matching \texttt{[} if byte at ptr is not 0\\
-            \bottomrule
-        \end{tabular}
-        \caption{\bfck{} commands}
-        \label{tab:bfck-commands}
-    \end{subtable}
-    \begin{subtable}[t]{0.49\linewidth}
-        \centering
-        \begin{tabular}{cl}
-            \toprule
-            \texttt{\}} & Increment pointer \\
-            \texttt{\{} & Decrement pointer \\
-            \texttt{*} & Apply $X$ gate to qubit at pointer \\
-            \texttt{\~} & Apply $H$ gate to qubit at pointer \\
-            \texttt{;} & Apply $T$ gate to qubit at pointer \\
-            \texttt{:} & Measure qubit at pointer and print outcome \\
-            \texttt{\#} & Control next gate on the qubit at pointer \\
-            \texttt{?} & Apply next gate iff last measurement was 1 \\
-            \bottomrule
-        \end{tabular}
-        \caption{\bfq{} commands}
-        \label{tab:bfq-commands}
-    \end{subtable}
-    
-    \caption{This is the main caption for both tables side by side.}
-    \label{tab:main}
+    \begin{tabular}{cl}
+      \toprule
+      \texttt{>} & Increment pointer \\
+      \texttt{<} & Decrement pointer \\
+      \texttt{+} & Increment byte at pointer \\
+      \texttt{-} & Decrement byte at pointer \\
+      \texttt{.} & Print byte at pointer \\
+      \texttt{,} & Write user input to byte at pointer \\
+      \texttt{[} & Go past matching \texttt{]} if byte at pointer is 0 \\
+    \texttt{]} & Return to matching \texttt{[} if byte at ptr is not 0\\
+      \bottomrule
+    \end{tabular}
+  \end{subtable}
+  \begin{subtable}[t]{0.49\linewidth}
+    \caption{\bfq{}}
+    \label{tab:bfq-commands}
+    \centering
+    \begin{tabular}{cl}
+      \toprule
+    \texttt{\}} & Increment pointer \\
+    \texttt{\{} & Decrement pointer \\
+      \texttt{*} & Apply $X$ gate to qubit at pointer \\
+      \texttt{\~} & Apply $H$ gate to qubit at pointer \\
+      \texttt{;} & Apply $T$ gate to qubit at pointer \\
+      \texttt{:} & Measure qubit at pointer and print outcome \\
+      \texttt{\#} & Control next gate on the qubit at pointer \\
+      \texttt{?} & Apply next gate iff last measurement was 1 \\
+      \bottomrule
+    \end{tabular}
+  \end{subtable}
 \end{table}
+
+
+\subsection{\hb}
+\label{sec:background-hb}
+
+    Note that due to the lack of operations like \texttt{[} and \texttt{]} from \bfck{}, \bfq{} does not provide a way of making the interpreter jump to other parts of the program. This motivates why combining both \bfck{} and \bfq{} in one program is desired. In our work, the operations of each language work on a separate tape.
+
+

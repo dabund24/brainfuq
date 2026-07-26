@@ -1,12 +1,6 @@
 \section{How to Use Our Code}
 
-% Include important code snippets such that we know how to use your code.
-
-\subsection{System Architecture and Overview}
-\label{sec:use-architecture}
-
-% Overview over directories and files in the repository: file structure
-% Class diagram for different modules: showing realization of abstract quantum\_interpreter etc.
+This section contains instructions on how our code can be used.
 
 \subsection{Environment Setup}
 \label{sec:use-env-setup}
@@ -47,40 +41,31 @@ from brainfuq_interpreter.brainfuq_simulator import BrainfuqSimulator
 from brainfuq_interpreter.brainfuq_to_qiskit_translator import QiskitBrainfuqInterpreter
 
 N = 10
-
 draw = True
 output_method = "latex_source" # default console output for None or "text"
 
 simulator = BrainfuqSimulator()
 interpreter = BrainfuqInterpreter(simulator)
 
-# put q0 in equal superposition
-program = "~"
-
-# loop counter
-program += "+" * (N - 1)
-
-# loop body: add a cnot and decrement loop counter
-program += "[#}*-]"
-
+program = "~" # put q0 in equal superposition
+program += "+" * (N - 1) # loop counter
+program += "[#}*-]" # loop body: add a cnot and decrement loop counter
 interpreter.interpret_program(program)
 print(simulator)
 
-# reset interpreter before interpreting the next program
-interpreter.reset()
+interpreter.reset() # reset interpreter before interpreting the next program
 
 if draw:
     translation_interpreter = BrainfuqInterpreter(QiskitBrainfuqInterpreter(verbose=False))
     qc, _ = translation_interpreter.interpret_program(program)
     print(qc.draw(output=output_method))
-
 \end{lstlisting}
 
 Running the script outputs \texttt{0.707 |0000000000⟩ + 0.707 |1111111111⟩} as well as qiskit circuit printed as latex source code (s. \Cref{fig:ghz_circuit}).
 
 \begin{figure}[htbp]
 \centering
-\scalebox{1.0}{
+\scalebox{0.8}{
 \Qcircuit @C=1.0em @R=0.2em @!R { \\
 	 	\nghost{{q}_{0} :  } & \lstick{{q}_{0} :  } & \gate{\mathrm{H}} & \ctrl{1} & \qw & \qw & \qw & \qw & \qw & \qw & \qw & \qw & \qw & \qw\\
 	 	\nghost{{q}_{1} :  } & \lstick{{q}_{1} :  } & \qw & \targ & \ctrl{1} & \qw & \qw & \qw & \qw & \qw & \qw & \qw & \qw & \qw\\
@@ -97,6 +82,7 @@ Running the script outputs \texttt{0.707 |0000000000⟩ + 0.707 |1111111111⟩} 
 \label{fig:ghz_circuit}
 \end{figure}
 
-%\subsection{Translating between Brainfuq and Qiskit}
-%\label{sec:use-translator}
+\subsection{Command Line Interface}
+\label{sec:cli}
 
+To facilitate prototyping, we provide a command line interface (\textsc{cli}) for our implementation. Using the \texttt{brainfuq simulate} command, a \hb{} program can be simulated, with the final quantum state optionally printed to stdout using the \texttt{-v} option. Using \texttt{brainfuq to-qiskit}, the \qiskit circuit equivalent to a \hb{} program is printed. More information about the \textsc{cli} can be obtained running \texttt{brainfuq -h}.
