@@ -33,7 +33,7 @@ By utilizing the \texttt{-e} flag, the source code inside the \texttt{src/} dire
 \subsection{Using the Interpreter to create a GHZ State}
 \label{sec:use-interpreter}
 
-In the following we will look at the script \texttt{examples/ghz.py} (see Listing~\ref{lst:ghz_example}) to see how to interpret a brainfuq program that creates a GHZ-State and how to translate it into a qiskit circuit.
+In the following, we will look at the script \texttt{examples/ghz.py} (see Listing~\ref{lst:ghz_example}) to see how to interpret a \bfck{} program that creates a GHZ-State and how to translate it into a qiskit circuit.
 
 \begin{lstlisting}[language=Python, caption=examples/ghz.py, label={lst:ghz_example}]
 from brainfuq_interpreter.brainfuq_interpreter import BrainfuqInterpreter
@@ -65,7 +65,7 @@ Running the script outputs \texttt{0.707 |0000000000⟩ + 0.707 |1111111111⟩} 
 
 \begin{figure}[htbp]
 \centering
-\scalebox{0.8}{
+\scalebox{1.0}{
 \Qcircuit @C=1.0em @R=0.2em @!R { \\
 	 	\nghost{{q}_{0} :  } & \lstick{{q}_{0} :  } & \gate{\mathrm{H}} & \ctrl{1} & \qw & \qw & \qw & \qw & \qw & \qw & \qw & \qw & \qw & \qw\\
 	 	\nghost{{q}_{1} :  } & \lstick{{q}_{1} :  } & \qw & \targ & \ctrl{1} & \qw & \qw & \qw & \qw & \qw & \qw & \qw & \qw & \qw\\
@@ -85,4 +85,4 @@ Running the script outputs \texttt{0.707 |0000000000⟩ + 0.707 |1111111111⟩} 
 \subsection{Command Line Interface}
 \label{sec:cli}
 
-To facilitate prototyping, we provide a command line interface (\textsc{cli}) for our implementation. Using the \texttt{brainfuq simulate} command, a \hb{} program can be simulated, with the final quantum state optionally printed to stdout using the \texttt{-v} option. Using \texttt{brainfuq to-qiskit}, the \qiskit circuit equivalent to a \hb{} program is printed. More information about the \textsc{cli} can be obtained running \texttt{brainfuq -h}.
+To facilitate prototyping, we provide a command line interface (\textsc{cli}) for our implementation. Using the \texttt{brainfuq simulate} command, a \hb{} program can be simulated, with the final quantum state optionally printed to stdout using the \texttt{-v} option. Using \texttt{brainfuq to-qiskit}, the \qiskit circuit equivalent to a \hb{} program is printed. More information about the \textsc{cli} can be obtained by running \texttt{brainfuq -h}.
