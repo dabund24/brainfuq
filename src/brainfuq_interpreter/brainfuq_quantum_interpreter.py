@@ -2,7 +2,9 @@ from abc import ABC, abstractmethod
 from typing import final
 
 class BrainfuqQuantumInterpreter[T](ABC):
-    SUPPORTED_OPS = set('}{*~;#?:')
+    SUPPORTED_OPS = '}{*~;#?:'
+    MAX_QUBIT_COUNT = 100
+
 
     def __init__(self, verbose: bool = True):
         self._verbose = verbose
@@ -36,20 +38,27 @@ class BrainfuqQuantumInterpreter[T](ABC):
         """
         pass
 
+    @final
+    def __add_qubit(self) -> None:
+        if self._next_idx > self.MAX_QUBIT_COUNT:
+            # Failsafe for when the user accidentally creates an infinite amount of qubits in a loop
+            # This prevents oom errors
+            raise RuntimeError("The brainfuq program requires more than 100 qubits. Please if your program really is correct.")
+        self._qubit_map[self._quantum_ptr] = self._next_idx
+        self._next_idx += 1
+
 
     @final
     def __move_right(self) -> None:
         self._quantum_ptr += 1
         if self._quantum_ptr not in self._qubit_map:
-            self._qubit_map[self._quantum_ptr] = self._next_idx
-            self._next_idx += 1
+            self.__add_qubit()
 
     @final
     def __move_left(self) -> None:
         self._quantum_ptr -= 1
         if self._quantum_ptr not in self._qubit_map:
-            self._qubit_map[self._quantum_ptr] = self._next_idx
-            self._next_idx += 1
+            self.__add_qubit()
 
     @final
     def __x(self) -> None:
