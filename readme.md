@@ -1,6 +1,6 @@
 # Brainfuq
 
-Brainfuq brings [classical Brainfuck](https://esolangs.org/wiki/Brainfuck) and [its quantum counterpart](https://esolangs.org/wiki/Quantum_brainfuck) together. Modify both a classical tape of bits using brainfuck operations and a quantum tape of qubits using operations for quantum circuits.
+Brainfuq brings together [classical Brainfuck](https://esolangs.org/wiki/Brainfuck) and [its quantum counterpart](https://esolangs.org/wiki/Quantum_brainfuck). Modify both a classical tape of bits using brainfuck operations and a quantum tape of qubits using operations for quantum circuits.
 
 <details>
 <summary>Classical Brainfuck operations</summary>
