@@ -10,9 +10,12 @@
 \usepackage{listings}
 \usepackage{xcolor}
 \usepackage{hyperref}
-\usepackage{cleveref}
+\usepackage[capitalise]{cleveref}
 \usepackage[braket, qm]{qcircuit}
 \usepackage{graphicx}
+\usepackage{tikz-uml}
+\usepackage{subcaption}
+\usepackage{booktabs}
 
 \usepackage[style=numeric,sorting=none]{biblatex}
 \addbibresource{bibliography.bib}
@@ -21,6 +24,10 @@
 \newcommand{\HRule}{\rule{\linewidth}{0.3mm}}
 \newcommand{\qmap}{\mathit{qubit\_map}}
 \newcommand{\qtape}{\mathit{quantum\_tape}}
+\newcommand{\bfck}{\textsc{Brainfuck}}
+\newcommand{\bfq}{\textsc{Brainfuq}}
+\newcommand{\hb}{\textsc{Hybrid Brainfuq}}
+\newcommand{\qiskit}{\textsc{Qiskit}}
 
 % Code listing settings
 \definecolor{codegreen}{rgb}{0,0.6,0}

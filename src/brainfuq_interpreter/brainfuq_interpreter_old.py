@@ -10,7 +10,9 @@ def interpret_brainfuq(program: str) -> tuple[dict, dict, dict]:
     # quantum tape uses little endian basis states: |q_n ... q_0>
     # 0 amplitudes are implicit
 
-    valid_chars = set("}{*~#?;:><+-.,[]")
+    valid_chars = "}{*~#?;:><+-.,[]"
+
+    max_qubit_count = 100
     
     for c, char in enumerate(program):
         if char not in valid_chars:
@@ -47,6 +49,11 @@ def interpret_brainfuq(program: str) -> tuple[dict, dict, dict]:
                 quantum_ptr += 1
                 
                 if quantum_ptr not in qubit_map:
+                    if next_idx > max_qubit_count:
+                        # Failsafe for when the user accidentally creates an infinite amount of qubits in a loop
+                        # This prevents oom errors
+                        raise RuntimeError("The brainfuq program requires more than 100 qubits. Please if your program really is correct.")
+
                     qubit_map[quantum_ptr] = next_idx
                     next_idx += 1
 
@@ -55,8 +62,12 @@ def interpret_brainfuq(program: str) -> tuple[dict, dict, dict]:
                 quantum_ptr -= 1
                 
                 if quantum_ptr not in qubit_map:
-                        qubit_map[quantum_ptr] = next_idx
-                        next_idx += 1
+                    if next_idx > max_qubit_count:
+                        # Failsafe for when the user accidentally creates an infinite amount of qubits in a loop
+                        # This prevents oom errors
+                        raise RuntimeError("The brainfuq program requires more than 100 qubits. Please if your program really is correct.")
+                    qubit_map[quantum_ptr] = next_idx
+                    next_idx += 1
 
             case '*':
 
