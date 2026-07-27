@@ -75,14 +75,14 @@ Our goal was to design a modular architecture that strikes a good balance betwee
 \subsection{Simulation}
 \label{sec:approach-quantum-tape}
 
-The main challenge in implementing a \bfq{} simulator is the representation of the quantum tape.
-In classical brainfuck the tape can be implemented as a plain hash map from indices to tape values.
+The main challenge in implementing a \hb{} simulator is the representation of the quantum tape.
+In classical \bfck{} the tape can be implemented as a plain hash map from indices to tape values.
 The indices are signed integers, i.e., they can take on positive and negative values as the pointer is moved left and right.
 The tape values are typically bytes representing an 8-bit unsigned integer.
 
 In our implementation, we attempt to apply this approach to the quantum tape, which requires some creativity to accommodate the properties of quantum states.
 While a naive map from indices to single qubits seems straightforward, it is not sufficient, as it can only be used to store product states.
-As the gates of the \bfck{} specification form a universal basis for quantum gates, arbitrary, and in particular entangled, quantum states can be computed.
+As the gates of the \hb{} specification form a universal basis for quantum gates, arbitrary, and in particular entangled, quantum states can be computed.
 To represent arbitrary quantum states, we transition to a map $\qtape$ from basis states to complex amplitudes.
 Although such a map is capable of storing arbitrary states similar to a plain state vector, the representation of the basis states remains a challenge.
 Given that the quantum tape is infinite, i.e., the indices run from $-\infty$ to $\infty$, there are no boundaries that define a reference frame for specifying basis states.
@@ -112,7 +112,7 @@ To showcase the functionality of our interpreter and translators, we implemented
 The script \texttt{examples/ghz.py} (s. Listing \ref{lst:ghz_example}) initializes a $N$-qubit GHZ state.
 After applying the Hadamard gate on the first qubit, it leverages classical instructions to iteratively add CNOT gates and move the quantum pointer.
 The number of qubits of the resulting state is controlled by the parameter variable $N$, which is used to set up the loop counter variable that is decremented at the end of each iteration.
-For instance $N=5$ produces the \bfck{} program \texttt{\textasciitilde +++++[\#\}*-]}.
+For instance $N=5$ produces the \hb{} program \texttt{\textasciitilde +++++[\#\}*-]}.
 As expected, processing the string puts the quantum tape into the state $\frac{1}{\sqrt{2}} (\ket{00000} + \ket{11111})$, which we confirm by printing the string representation of our quantum simulator.
 
 Further, \texttt{examples/quantum-teleportation.py} implements the circuit for teleporting a qubit through a shared pair of entangled qubits.
@@ -122,18 +122,18 @@ We confirm that after the teleportation logic, the state of the system features 
 Printing the entire system state, we get the \texttt{-0.707 |011⟩ + 0.707 |010⟩} or versions with arbitrary other combinations of the first two qubits.
 
 Lastly, \texttt{examples/grover.py} shows how different software components work together.
-To start, it translates a \qiskit{} Grover operator, obtained by concatenating a phase oracle and a diffusion operator, into a \bfq{} program string.
-This string is then embedded into the full \bfck{} program as the body to a loop which is executed for the optimal number of Grover iterations which we calculate classically for the given oracle.
+To start, it translates a \qiskit{} Grover operator, obtained by concatenating a phase oracle and a diffusion operator, into a \hb{} program string.
+This string is then embedded into the full \hb{} program as the body to a loop which is executed for the optimal number of Grover iterations which we calculate classically for the given oracle.
 We prefix the program with Hadamard gates, setting the search qubits into an equal superposition and an optional suffix for measuring the search qubits.
 In the script, we use an oracle which marks exactly the basis state consisting only of 1-bits, i.e., only one solution.
 To prevent this oracle from blowing up in terms of the number of used basis gates, we implement a version with $N-2$ auxiliary qubits.
-Although this oracle is relatively compact, it still produces \bfck{} programs with a significant count of overall instructions.
-For $N=6$, for instance, the \bfck{} program of a single Grover operator is comprised of 21255 classical instructions (including pointer shifts), which results in an overall runtime of almost $30s$.
+Although this oracle is relatively compact, it still produces \hb{} programs with a significant count of overall instructions.
+For $N=6$, for instance, the \hb{} program of a single Grover operator is comprised of 21255 classical instructions (including pointer shifts), which results in an overall runtime of almost $30s$.
 Running the script with \texttt{measure=False} and $N=3$ produces the following state where the last qubit is an auxiliary: \texttt{0.972 |1110⟩ - 0.088 |1100⟩ - 0.088 |1000⟩ - 0.088 |0000⟩ - 0.088 |0100⟩ - 0.088 |1010⟩ - 0.088 |0010⟩ - 0.088 |0110⟩}.
 
 \subsection{Edge Case Inputs}
 \label{sec:approach-edge-cases}
 
-Given the \bfck{} instructions presented in \Cref{sec:background}, there are some edge case inputs for which the expected behavior of the system is unclear.
+Given the \hb{} instructions presented in \Cref{sec:background}, there are some edge case inputs for which the expected behavior of the system is unclear.
 For repeated \texttt{\#} without a resetting gate instruction, i.e. \texttt{*}, \texttt{\textasciitilde} or \texttt{;} in between, the last \texttt{\#} governs which qubit controls the next gate.
 If the program does not feature any measurement instructions \texttt{:} before a \texttt{?}, the next gate is not executed as the last measurement did not exist and hence was not $1$ in particular.
