@@ -5,16 +5,16 @@ Brainfuq brings [classical Brainfuck](https://esolangs.org/wiki/Brainfuck) and [
 <details>
 <summary>Classical Brainfuck operations</summary>
 
-| Operation | Description                                         |
-|----------:|-----------------------------------------------------|
-| `>`       | Increment pointer                                   |
-| `<`       | Decrement pointer                                   |
-| `+`       | Increment byte at pointer                           |
-| `-`       | Decrement byte at pointer                           |
-| `.`       | Print byte at pointer                               |
-| `,`       | Write user input to byte at pointer                 |
-| `[`       | Jump past matching ] if byte at pointer is 0        |
-| `]`       | Jump back to matching [ if byte at pointer is not 0 |
+| Operation | Description                                           |
+|----------:|-------------------------------------------------------|
+| `>`       | Increment pointer                                     |
+| `<`       | Decrement pointer                                     |
+| `+`       | Increment byte at pointer                             |
+| `-`       | Decrement byte at pointer                             |
+| `.`       | Print byte at pointer                                 |
+| `,`       | Write user input to byte at pointer                   |
+| `[`       | Jump past matching `]` if byte at pointer is 0        |
+| `]`       | Jump back to matching `[` if byte at pointer is not 0 |
 </details>
 
 <details>
@@ -24,9 +24,9 @@ Brainfuq brings [classical Brainfuck](https://esolangs.org/wiki/Brainfuck) and [
 |----------:|------------------------------------------------|
 | `}`       | Increment pointer                              |
 | `{`       | Decrement pointer                              |
-| `*`       | Apply X gate to qubit at pointer               |
-| `~`       | Apply H gate to qubit at pointer               |
-| `;`       | Apply T gate to qubit at pointer               |
+| `*`       | Apply $X$ gate to qubit at pointer             |
+| `~`       | Apply $H$ gate to qubit at pointer             |
+| `;`       | Apply $T$ gate to qubit at pointer             |
 | `:`       | Measure qubit at pointer and print outcome     |
 | `#`       | Control next gate on the qubit at pointer      |
 | `?`       | Apply next gate only if last measurement was 1 |
