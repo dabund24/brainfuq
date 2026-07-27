@@ -67,6 +67,8 @@ Install dependencies and CLI:
 pip install -e .
 ```
 
+**Running**:
+
 Print CLI help:
 ```
 brainfuq -h
