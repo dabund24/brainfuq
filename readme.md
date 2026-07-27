@@ -1,6 +1,6 @@
 # Brainfuq
 
-Brainfuq brings [classical Brainfuck](https://esolangs.org/wiki/Brainfuck) and [its quantum counterpart](https://esolangs.org/wiki/Quantum_brainfuck) together. Modify both a classical tape of bits using brainfuck operations and a quantum tape of qubits using operations for quantum cicuits.
+Brainfuq brings [classical Brainfuck](https://esolangs.org/wiki/Brainfuck) and [its quantum counterpart](https://esolangs.org/wiki/Quantum_brainfuck) together. Modify both a classical tape of bits using brainfuck operations and a quantum tape of qubits using operations for quantum circuits.
 
 <details>
 <summary>Classical Brainfuck operations</summary>
@@ -33,19 +33,19 @@ Brainfuq brings [classical Brainfuck](https://esolangs.org/wiki/Brainfuck) and [
 </details> 
 
 
-Read [this report](https://github.com/dabund24/brainfuq/releases/download/submission/main.pdf) for more details.
+Read [this report](https://github.com/dabund24/brainfuq/releases/download/submission/report.pdf) for more details.
 
 ## Features
 
-- Interpret a Brainfuq program using a simulator with support for arbitratry quantum states
+- Interpret a Brainfuq program using a simulator with support for arbitrary quantum states
   
   `brainfuq simulate "~,-[#}*-]" -v`
 
-- Translate a Brainfuq program into a qiskit circuit
+- Translate a Brainfuq program into a Qiskit circuit
 
   `brainfuq to-qiskit -o ghz.qpy "~,-[#}*{:}-]:"`
 
-- Generate a Brainfuq program from a qiskit circuit
+- Generate a Brainfuq program from a Qiskit circuit
 
   `brainfuq from-qiskit ghz.qpy`
 
@@ -74,7 +74,7 @@ Print CLI help:
 brainfuq -h
 ```
 
-For examples of how the interpreter can be used with Python code, see the `examples` directory.
+For examples of how to use the interpreter with Python code, see the `examples` directory.
 
 <hr>
 
