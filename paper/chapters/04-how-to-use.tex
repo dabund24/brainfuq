@@ -5,8 +5,8 @@ This section contains instructions on how our code can be used.
 \subsection{Environment Setup}
 \label{sec:use-env-setup}
 
-To ensure dependencies do not conflict with your system-wide Python installation, we recommend executing this project within an isolated virtual environment. 
-From the project's root directory, initialize and activate the environment, then install the package along with its required dependencies in editable mode by running:
+To ensure dependencies do not conflict with system-wide Python installations, we recommend executing this project within an isolated virtual environment. 
+After initializing and activating the environment from the project's root directory, the package can be installed along with its dependencies in editable mode by running:
 
 \begin{lstlisting}[
     language=bash, 
@@ -28,12 +28,12 @@ source .venv/bin/activate
 pip install -e .
 \end{lstlisting}
 
-By utilizing the \texttt{-e} flag, the source code inside the \texttt{src/} directory is linked directly to your active environment. This allows any absolute imports to resolve automatically from anywhere on your system.
+By utilizing the \texttt{-e} flag, the source code inside the \texttt{src/} directory is linked directly to the active environment. This allows any absolute imports to resolve automatically from anywhere on the system.
 
 \subsection{Using the Interpreter to create a GHZ State}
 \label{sec:use-interpreter}
 
-In the following, we will look at the script \texttt{examples/ghz.py} (see Listing~\ref{lst:ghz_example}) to see how to interpret a \bfck{} program that creates a GHZ-State and how to translate it into a qiskit circuit.
+In the following, we will look at the script \texttt{examples/ghz.py} (see Listing~\ref{lst:ghz_example}) to see how to interpret a \bfq{} program that creates a GHZ-State and how to translate it into a \qiskit{} circuit.
 
 \begin{lstlisting}[language=Python, caption=examples/ghz.py, label={lst:ghz_example}]
 from brainfuq_interpreter.brainfuq_interpreter import BrainfuqInterpreter
@@ -85,4 +85,4 @@ Running the script outputs \texttt{0.707 |0000000000⟩ + 0.707 |1111111111⟩} 
 \subsection{Command Line Interface}
 \label{sec:cli}
 
-To facilitate prototyping, we provide a command line interface (\textsc{cli}) for our implementation. Using the \texttt{brainfuq simulate} command, a \hb{} program can be simulated, with the final quantum state optionally printed to stdout using the \texttt{-v} option. Using \texttt{brainfuq to-qiskit}, the \qiskit circuit equivalent to a \hb{} program is printed. More information about the \textsc{cli} can be obtained by running \texttt{brainfuq -h}.
+To facilitate prototyping, we provide a command line interface (\textsc{cli}) for our implementation. Using the \texttt{brainfuq simulate} command, a \bfq{} program can be simulated, with the final quantum state optionally printed to stdout using the \texttt{-v} option. Using \texttt{brainfuq to-qiskit}, the \qiskit{} circuit equivalent to a \bfq{} program is printed. More information about the \textsc{cli} can be obtained by running \texttt{brainfuq -h}.
