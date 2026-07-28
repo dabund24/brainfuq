@@ -59,7 +59,7 @@ Read [this report](https://github.com/dabund24/brainfuq/releases/download/submis
 
 Create and activate venv:
 ```
-python -m venv . venv & source . venv/bin/activate
+python -m venv .venv && source .venv/bin/activate
 ```
 
 Install dependencies and CLI:
